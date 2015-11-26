@@ -1,26 +1,41 @@
 public class MRay
 {
 	private Display m_display;
+	private static int WIDTH = 960;
+	private static int HEIGHT = 720;
 
 	public MRay()
 	{
-		m_display = new Display(480, 360);
+		m_display = new Display(WIDTH, HEIGHT);
 	}
 
 	public void start()
 	{
 		int[] pixelBuffer = m_display.getPixels();
 		Vector3f camera = new Vector3f(0.0f, 0.0f, 0.0f);
-		float pixelSize = 2.0f / 480.0f;
+		
+		Scene scene = new Scene();
+		scene.addObject(new Sphere(new Vector3f(0.0f, 0.0f, 5.0f), 1.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
+		scene.addObject(new Sphere(new Vector3f(3.0f, 1.0f, 5.0f), 0.5f, new Vector3f(255.0f, 255.0f, 255.0f)));
 
-		for (int x = 0; x < 480; x++)
+		scene.addLight(new Light(new Vector3f(1.0f, 1.0f, 0.0f), new Vector3f(0.0f, 255.0f, 0.0f)));
+		scene.addLight(new Light(new Vector3f(-1.0f, 5.0f, 3.0f), new Vector3f(255.0f, 0.0f, 0.0f)));
+		scene.addLight(new Light(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 0.0f, 255.0f)));
+
+
+		float pixelSize = 2.0f / (float) WIDTH;
+		float heightRatio = (float) HEIGHT / (float) WIDTH;
+
+		for (int y = 0; y < HEIGHT; y++)
 		{
-			for (int y = 0; y < 360; y++)
+			float ry = heightRatio - pixelSize / 2 - pixelSize * y; 
+
+			for (int x = 0; x < WIDTH; x++)
 			{
 				float rx = -1.0f + pixelSize / 2 + pixelSize * x;
-				float ry = 1.0f - pixelSize / 2 + pixelSize * y; 
-				Vector3f color = traceRay(new Ray(camera, new Vector3f(rx, ry, 1.0f)));
-				pixelBuffer[y * 480 + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
+
+				Vector3f color = scene.traceRay(new Ray(camera, new Vector3f(rx, ry, 1.0f)));
+				pixelBuffer[y * WIDTH + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
 			}
 		}
 
@@ -36,50 +51,6 @@ public class MRay
 			{
 				ex.printStackTrace();
 			}
-		}
-	}
-
-	private Vector3f traceRay(Ray ray)
-	{
-		if (raySphereIntersect(ray, new Vector3f(0.0f, 0.0f, 5.0f), 4.0f) != -1)
-		{
-			return new Vector3f(255.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			return new Vector3f(153.0f, 204.0f, 255.0f);
-		}
-	}
-
-	private float raySphereIntersect(Ray ray, Vector3f sphereCenter, float sphereRadius)
-	{
-		Vector3f l = ray.getDirection();
-		Vector3f o = ray.getOrigin();
-		float a = l.dot(o.getSub(sphereCenter));
-		Vector3f b = sphereCenter.getSub(o);
-		float discrim = a * a - (b.dot(b) - sphereRadius * sphereRadius);
-
-		if (discrim < 0)
-		{
-			return -1;
-		}
-
-		float out = -1 * l.dot(o.getSub(sphereCenter));
-		if (discrim == 0)
-		{
-			return out;
-		}
-		discrim = (float) Math.sqrt(discrim);
-		float dp = out + discrim;
-		float dm = out - discrim;
-
-		if (dp > dm)
-		{
-			return dm;
-		}
-		else
-		{
-			return dp;
 		}
 	}
 
