@@ -85,4 +85,9 @@ public class Vector3f
 		m_z /= length;
 		return this;
 	}
+
+	public String toString()
+	{
+		return "(" + m_x + ", " + m_y + ", " + m_z + ")";
+	}
 }

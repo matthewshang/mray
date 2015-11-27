@@ -19,13 +19,13 @@ public class Sphere implements EngineObject
 		Vector3f b = m_center.getSub(o);
 		float discrim = a * a - (b.dot(b) - m_radius * m_radius);
 
-		if (discrim < 0)
+		if (discrim < 0.0f)
 		{
 			return new Intersection();
 		}
 
 		float out = -1 * l.dot(o.getSub(m_center));
-		if (discrim == 0)
+		if (discrim == 0.0f)
 		{
 			return new Intersection(out, ray.getNormal(out, m_center), m_color);
 		}

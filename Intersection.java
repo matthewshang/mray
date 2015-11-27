@@ -4,6 +4,7 @@ public class Intersection
 	private Vector3f m_normal;
 	private boolean m_isIntersect;
 	private Vector3f m_color;
+	private int m_objectIndex;
 
 	public Intersection(float distance, Vector3f normal, Vector3f color)
 	{
@@ -19,9 +20,19 @@ public class Intersection
 		m_distance = -1.0f;
 	}
 
+	public void setIndex(int index)
+	{
+		m_objectIndex = index;
+	}
+
 	public boolean isIntersect()
 	{
 		return m_isIntersect;
+	}
+
+	public int getIndex()
+	{
+		return m_objectIndex;
 	}
 
 	public float getDistance()
@@ -37,5 +48,10 @@ public class Intersection
 	public Vector3f getColor()
 	{
 		return m_color;
+	}
+
+	public void print()
+	{
+		System.out.println("distance: " + m_distance + "\nnormal: " + m_normal.toString() + "\ncolor: " + m_color.toString() + "\nintersect: " + m_isIntersect);
 	}
 }

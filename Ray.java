@@ -21,6 +21,11 @@ public class Ray
 
 	public Vector3f getNormal(float distance, Vector3f center)
 	{
-		return m_origin.getAdd(m_direction.getMul(distance)).sub(center).normalize();
+		return getPoint(distance).sub(center).normalize();
+	}
+
+	public Vector3f getPoint(float distance)
+	{
+		return m_origin.getAdd(m_direction.getMul(distance));
 	}
 }
