@@ -41,10 +41,6 @@ public class Scene
 
 				if (!toLight.isIntersect())
 				{
-					// Vector3f diffuse = getDiffuse(light, min.getNormal(), inter);
-					// Vector3f specular = getSpecular(light, min.getNormal(), inter, new Vector3f(0.0f, 0.0f, 0.0f));
-					// totalDiffuse.add(specular);
-
 					totalDiffuse.add(getDiffuse(light, min.getNormal(), inter));
 					totalSpecular.add(getSpecular(light, min.getNormal(), inter, new Vector3f(0.0f, 0.0f, 0.0f)));
 				}
@@ -55,7 +51,6 @@ public class Scene
 			}
 
 			Vector3f ambient = getAmbient(min.getColor());
-			// ambient.add(getSpecular(m_lights.get(0), min.getNormal(), inter, new Vector3f(0.0f, 0.0f, 0.0f)));
 			ambient.add(totalSpecular);
 			Vector3f objectColor = min.getColor();
 			return new Vector3f(Math.min(255.0f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
@@ -106,7 +101,9 @@ public class Scene
 
 	private Vector3f getAmbient(Vector3f color)
 	{
-		return color.getMul(0.4f);
+		return color.getMul(0.4f).add(skyColor.getMul(0.01f));
+		// return color.getMul(0.4f);
+
 	}
 
 	private Vector3f getDiffuse(Light light, Vector3f normal, Vector3f point)
@@ -114,7 +111,7 @@ public class Scene
 		Vector3f pointToLight = light.getPosition().getSub(point);
 		float distance = pointToLight.length();
 		float cos = Math.max(0.0f, pointToLight.dot(normal) / distance);
-		float intensity = 2.0f / distance;
+		float intensity = Math.min(1.0f / cos, light.getRadius() / distance);
 		return light.getColor().getMul((cos * intensity) / 255.0f);
 	}
 
@@ -131,6 +128,6 @@ public class Scene
 			cos = 0.0f;
 		}
 		Vector3f color = new Vector3f(255.0f, 255.0f, 255.0f);
-		return color.mul(0.4f).mul((float) Math.pow(cos, 90));
+		return color.mul(0.15f).mul((float) Math.pow(cos, 90));
 	}
 }

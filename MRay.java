@@ -12,26 +12,10 @@ public class MRay
 
 	public void start()
 	{		
-		Scene scene = new Scene();
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++)
-			{
-				for (int k = 0; k < 4; k++)
-				{
-					scene.addObject(new Sphere(new Vector3f(-3.0f + i * 2.0f,
-															-3.0f + j * 2.0f,
-															 5.0f + k * 2.0f), 1.0f,
-											   new Vector3f(255.0f, 255.0f, 255.0f)));
-				}
-			}
-		}
-
-		scene.addLight(new Light(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(255.0f, 0.0f, 0.0f)));
-		scene.addLight(new Light(new Vector3f(-8.0f, 0.0f, 8.0f), new Vector3f(0.0f, 255.0f, 0.0f)));
+		Scene scene = scene_ballAndPlane();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display);
+		traceImage(scene, m_display, 16);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000.0f;
 		System.out.println("Render time: " + seconds + " seconds");		
@@ -51,7 +35,7 @@ public class MRay
 		}
 	}
 
-	private void traceImage(Scene scene, Display display)
+	private void traceImage(Scene scene, Display display, int samplesPerPixel)
 	{
 		int[] buffer = display.getPixels();
 
@@ -62,7 +46,7 @@ public class MRay
 		{
 			for (int x = 0; x < WIDTH; x++)
 			{
-				Vector3f color = tracePixel(8, heightRatio, scene, camera, x, y);
+				Vector3f color = tracePixel(samplesPerPixel, heightRatio, scene, camera, x, y);
 				buffer[y * WIDTH + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
 			}
 
@@ -73,7 +57,7 @@ public class MRay
 		}
 	}
 
-	private Vector3f tracePixel(int antialias, float heightRatio, Scene scene, Vector3f camera,
+	private Vector3f tracePixel(int samples, float heightRatio, Scene scene, Vector3f camera,
 								int imagex, int imagey)
 	{
 		float halfTanFOV = (float) Math.tan(45.0f * (float) Math.PI / 180.0f);
@@ -83,17 +67,53 @@ public class MRay
 		float bottom = top - PIXEL_SIZE * halfTanFOV;
 
 		Vector3f color = new Vector3f(0.0f, 0.0f, 0.0f);
-		for (int i = 0; i < antialias; i++)
+		for (int i = 0; i < samples; i++)
 		{
 			color.add(scene.traceRay(new Ray(camera, new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1.0f))));
 		}
 
-		return color.mul(1.0f / (float) antialias);
+		return color.mul(1.0f / (float) samples);
 	}
 
 	private float randomFloat(float low, float high)
 	{
 		return low + (high - low) * (float) Math.random();
+	}
+
+	private Scene scene_ballAndPlane()
+	{
+		Scene scene = new Scene();
+		scene.addObject(new Plane(new Vector3f(0.0f, -2.0f, 0.0f), new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(255.0f, 255.0f, 255.0f)));
+		scene.addObject(new Sphere(new Vector3f(0.0f, 0.0f, 10.0f), 2.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
+		scene.addObject(new Sphere(new Vector3f(3.0f, -1.0f, 7.0f), 1.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
+		scene.addObject(new Sphere(new Vector3f(-3.0f, -1.0f, 7.0f), 1.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
+
+		scene.addLight(new Light(new Vector3f(-7.0f, 2.0f, 0.0f), 5.0f, new Vector3f(255.0f, 153.0f, 51.0f)));
+		scene.addLight(new Light(new Vector3f(7.0f, 2.0f, 0.0f), 5.0f, new Vector3f(51.0f, 153.0f, 255.0f)));
+		return scene;
+	}
+
+	private Scene scene_ballCube()
+	{
+		Scene scene = new Scene();
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				for (int k = 0; k < 4; k++)
+				{
+					scene.addObject(new Sphere(new Vector3f(-3.0f + i * 2.0f,
+															-3.0f + j * 2.0f,
+															 7.0f + k * 2.0f), 1.0f,
+											   new Vector3f(255.0f, 255.0f, 255.0f)));
+				}
+			}
+		}
+
+		scene.addLight(new Light(new Vector3f(0.0f, 0.0f, 0.0f), 2.0f, new Vector3f(255.0f, 0.0f, 0.0f)));
+		scene.addLight(new Light(new Vector3f(-8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 255.0f, 0.0f)));
+		scene.addLight(new Light(new Vector3f(8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 0.0f, 255.0f)));
+		return scene;
 	}
 
 	public static void main(String[] args)
