@@ -6,18 +6,20 @@ public class Intersection
 	private Vector3f m_color;
 	private int m_objectIndex;
 
-	public Intersection(float distance, Vector3f normal, Vector3f color)
+	public Intersection(float distance, Vector3f normal, Vector3f color, int index)
 	{
 		m_distance = distance;
-		m_normal = normal;
+		m_normal = normal.copy();
 		m_isIntersect = true;
-		m_color = color;
+		m_color = color.copy();
+		m_objectIndex = index;
 	}
 
 	public Intersection()
 	{
 		m_isIntersect = false;
 		m_distance = -1.0f;
+		m_objectIndex = -1;
 	}
 
 	public void setIndex(int index)
@@ -30,7 +32,7 @@ public class Intersection
 		return m_isIntersect;
 	}
 
-	public int getIndex()
+	public int getObjectIndex()
 	{
 		return m_objectIndex;
 	}

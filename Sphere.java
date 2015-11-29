@@ -27,20 +27,39 @@ public class Sphere implements EngineObject
 		float out = -1 * l.dot(o.getSub(m_center));
 		if (discrim == 0.0f)
 		{
-			return new Intersection(out, ray.getNormal(out, m_center), m_color);
+			return new Intersection(out, ray.getNormal(out, m_center), m_color, -1);
 		}
 		discrim = (float) Math.sqrt(discrim);
 		float dp = out + discrim;
 		float dm = out - discrim;
 
-		if (dp > dm)
+		if (dp > 0.0f && dm > 0.0f)
 		{
-			return new Intersection(dm, ray.getNormal(dm, m_center), m_color);
-
+			if (dm < dp)
+			{
+				return new Intersection(dm, ray.getNormal(dm, m_center), m_color, -1);
+			}
+			else
+			{
+				return new Intersection(dp, ray.getNormal(dp, m_center), m_color, -1);
+			}
 		}
 		else
 		{
-			return new Intersection(dp, ray.getNormal(dp, m_center), m_color);
+			if (dp < 0.0f && dm < 0.0f)
+			{
+				return new Intersection();
+			}
+			else if (dp < 0.0f)
+			{
+				return new Intersection(dm, ray.getNormal(dm, m_center), m_color, -1);
+			}
+			else if (dm < 0.0f)
+			{
+				return new Intersection(dp, ray.getNormal(dp, m_center), m_color, -1);
+			}
+
+			return new Intersection();
 		}
 	}
 }

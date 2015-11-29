@@ -57,6 +57,14 @@ public class Vector3f
 		return new Vector3f(m_x - v.getX(), m_y - v.getY(), m_z - v.getZ());
 	}
 
+	public Vector3f mul(float d)
+	{
+		m_x *= d;
+		m_y *= d;
+		m_z *= d;
+		return this;
+	}
+
 	public Vector3f getMul(float d)
 	{
 		return new Vector3f(m_x * d, m_y * d, m_z * d);
