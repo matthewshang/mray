@@ -1,8 +1,14 @@
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+
 public class MRay
 {
 	private Display m_display;
-	private static int WIDTH = 960;
-	private static int HEIGHT = 720;
+	private static int WIDTH = 1920;
+	private static int HEIGHT = 1080;
 	private static float HEIGHT_WIDTH_RATIO = (float) HEIGHT / (float) WIDTH;
 	private static float PIXEL_SIZE = 2.0f / (float) WIDTH;
 
@@ -13,16 +19,22 @@ public class MRay
 
 	public void start()
 	{		
-		// Scene scene = scene_ballAndPlane();
-		Scene scene = scene_ballCube();
+		Scene scene = scene_ballAndPlane();
+		// Scene scene = scene_ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 8, getCores());
+		traceImage(scene, m_display, 32, getCores());
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000.0f;
 		System.out.println("Render time: " + seconds + " seconds");	
 
 		m_display.drawBuffer();	
+
+		if (false)
+		{
+			saveImage();
+		}
+
 
 		while (true)
 		{
@@ -73,6 +85,20 @@ public class MRay
 
 	}
 
+	private void saveImage()
+	{
+		File outputFile = new File("./out/" + getTimestamp() + ".png");
+		try
+		{
+			ImageIO.write(m_display.getBufferedImage(), "png", outputFile);
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+		}
+
+	}
+
 	private Scene scene_ballAndPlane()
 	{
 		Scene scene = new Scene();
@@ -112,6 +138,13 @@ public class MRay
 	private int getCores()
 	{
 		return Runtime.getRuntime().availableProcessors();
+	}
+
+	private String getTimestamp()
+	{
+		Date date = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss");
+		return dateFormat.format(date);
 	}
 
 	public static void main(String[] args)

@@ -43,6 +43,11 @@ public class Display extends Canvas
 		return m_imageData;
 	}
 
+	public BufferedImage getBufferedImage()
+	{
+		return m_image;
+	}
+
 	public void drawBuffer()
 	{
 		BufferStrategy b = getBufferStrategy();
