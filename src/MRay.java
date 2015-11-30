@@ -3,6 +3,7 @@ public class MRay
 	private Display m_display;
 	private static int WIDTH = 960;
 	private static int HEIGHT = 720;
+	private static float HEIGHT_WIDTH_RATIO = (float) HEIGHT / (float) WIDTH;
 	private static float PIXEL_SIZE = 2.0f / (float) WIDTH;
 
 	public MRay()
@@ -12,18 +13,19 @@ public class MRay
 
 	public void start()
 	{		
-		Scene scene = scene_ballAndPlane();
+		// Scene scene = scene_ballAndPlane();
+		Scene scene = scene_ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 16);
+		traceImage(scene, m_display, 8, getCores());
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000.0f;
-		System.out.println("Render time: " + seconds + " seconds");		
+		System.out.println("Render time: " + seconds + " seconds");	
+
+		m_display.drawBuffer();	
 
 		while (true)
 		{
-			m_display.drawBuffer();
-
 			try
 			{
 				Thread.sleep(32);
@@ -35,49 +37,40 @@ public class MRay
 		}
 	}
 
-	private void traceImage(Scene scene, Display display, int samplesPerPixel)
+	private void traceImage(Scene scene, Display display, int samplesPerPixel, int numberOfThreads)
 	{
 		int[] buffer = display.getPixels();
-
 		Vector3f camera = new Vector3f(0.0f, 0.0f, 0.0f);
-		float heightRatio = (float) HEIGHT / (float) WIDTH;
 
-		for (int y = 0; y < HEIGHT; y++)
+		RaytracerProcess[] threads = new RaytracerProcess[numberOfThreads];
+		int threadHeight = HEIGHT / threads.length;
+		int lastThread = threadHeight + (HEIGHT - threadHeight * threads.length);
+
+		for (int i = 0; i < threads.length - 1; i++)
 		{
-			for (int x = 0; x < WIDTH; x++)
-			{
-				Vector3f color = tracePixel(samplesPerPixel, heightRatio, scene, camera, x, y);
-				buffer[y * WIDTH + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
-			}
-
-			if (y % 50 == 0)
-			{
-				display.drawBuffer();
-			}
+			threads[i] = new RaytracerProcess();
+			threads[i].init(buffer, threadHeight * i, threadHeight * (i + 1), WIDTH, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
 		}
-	}
+		threads[threads.length - 1] = new RaytracerProcess();
+		threads[threads.length - 1].init(buffer, HEIGHT - lastThread, HEIGHT, WIDTH, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
 
-	private Vector3f tracePixel(int samples, float heightRatio, Scene scene, Vector3f camera,
-								int imagex, int imagey)
-	{
-		float halfTanFOV = (float) Math.tan(45.0f * (float) Math.PI / 180.0f);
-		float left = -1.0f * halfTanFOV + PIXEL_SIZE * halfTanFOV * imagex;
-		float right = left + PIXEL_SIZE * halfTanFOV;
-		float top = heightRatio * halfTanFOV - PIXEL_SIZE * halfTanFOV * imagey;
-		float bottom = top - PIXEL_SIZE * halfTanFOV;
-
-		Vector3f color = new Vector3f(0.0f, 0.0f, 0.0f);
-		for (int i = 0; i < samples; i++)
+		for (int i = 0; i < threads.length; i++)
 		{
-			color.add(scene.traceRay(new Ray(camera, new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1.0f))));
+			threads[i].start();
 		}
 
-		return color.mul(1.0f / (float) samples);
-	}
+		for (int i = 0; i < threads.length; i++)
+		{
+			try
+			{
+				threads[i].join();
+			}
+			catch (InterruptedException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
 
-	private float randomFloat(float low, float high)
-	{
-		return low + (high - low) * (float) Math.random();
 	}
 
 	private Scene scene_ballAndPlane()
@@ -114,6 +107,11 @@ public class MRay
 		scene.addLight(new Light(new Vector3f(-8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 255.0f, 0.0f)));
 		scene.addLight(new Light(new Vector3f(8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 0.0f, 255.0f)));
 		return scene;
+	}
+
+	private int getCores()
+	{
+		return Runtime.getRuntime().availableProcessors();
 	}
 
 	public static void main(String[] args)
