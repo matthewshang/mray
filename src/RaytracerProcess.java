@@ -30,28 +30,27 @@ public class RaytracerProcess extends Thread
 		{
 			for (int x = 0; x < m_width; x++)
 			{
-				Vector3f color = tracePixel(m_samples, m_heightRatio, m_scene, m_camera, x, y);
+				Vector3f color = tracePixel(x, y);
 				m_buffer[y * m_width + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
 			}
 		}
 	}
 
-	private Vector3f tracePixel(int samples, float heightRatio, Scene scene, Vector3f camera,
-								int imagex, int imagey)
+	private Vector3f tracePixel(int imagex, int imagey)
 	{
 		float halfTanFOV = (float) Math.tan(45.0f * (float) Math.PI / 180.0f);
 		float left = -1.0f * halfTanFOV + m_pixelSize * halfTanFOV * imagex;
 		float right = left + m_pixelSize * halfTanFOV;
-		float top = heightRatio * halfTanFOV - m_pixelSize * halfTanFOV * imagey;
+		float top = m_heightRatio * halfTanFOV - m_pixelSize * halfTanFOV * imagey;
 		float bottom = top - m_pixelSize * halfTanFOV;
 
 		Vector3f color = new Vector3f(0.0f, 0.0f, 0.0f);
-		for (int i = 0; i < samples; i++)
+		for (int i = 0; i < m_samples; i++)
 		{
-			color.add(scene.traceRay(new Ray(camera, new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1.0f))));
+			color.add(m_scene.traceRay(new Ray(m_camera, new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1.0f))));
 		}
 
-		return color.mul(1.0f / (float) samples);
+		return color.mul(1.0f / (float) m_samples);
 	}
 
 	private float randomFloat(float low, float high)

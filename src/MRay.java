@@ -7,10 +7,10 @@ import java.io.IOException;
 public class MRay
 {
 	private Display m_display;
-	private static int WIDTH = 1920;
-	private static int HEIGHT = 1080;
+	private static int WIDTH = 960;
+	private static int HEIGHT = 720;
 	private static float HEIGHT_WIDTH_RATIO = (float) HEIGHT / (float) WIDTH;
-	private static float PIXEL_SIZE = 2.0f / (float) WIDTH;
+	private static float PIXEL_SIZE = 2f / (float) WIDTH;
 
 	public MRay()
 	{
@@ -19,13 +19,14 @@ public class MRay
 
 	public void start()
 	{		
-		Scene scene = scene_ballAndPlane();
+		Scene scene = scene_cylinder();
+		// Scene scene = scene_ballAndPlane();
 		// Scene scene = scene_ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 32, getCores());
+		traceImage(scene, m_display, 4, getCores());
 		long time = System.nanoTime() - start;
-		float seconds = (float) time / 1000000000.0f;
+		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
 
 		m_display.drawBuffer();	
@@ -52,7 +53,7 @@ public class MRay
 	private void traceImage(Scene scene, Display display, int samplesPerPixel, int numberOfThreads)
 	{
 		int[] buffer = display.getPixels();
-		Vector3f camera = new Vector3f(0.0f, 0.0f, 0.0f);
+		Vector3f camera = new Vector3f(0f, 0f, 0f);
 
 		RaytracerProcess[] threads = new RaytracerProcess[numberOfThreads];
 		int threadHeight = HEIGHT / threads.length;
@@ -99,16 +100,29 @@ public class MRay
 
 	}
 
+	private Scene scene_cylinder()
+	{
+		Scene scene = new Scene();
+		scene.addObject(new Cylinder(new Vector3f(0f, 0f, 5f), new Vector3f(0f, 1f, 0f), 1f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(1f, 0f, 3f), 0.5f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(-1f, 0f, 3f), 0.5f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(2f, 1f, 3f), 0.25f, new Vector3f(255f, 255f, 255f)));
+
+		scene.addLight(new Light(new Vector3f(-5f, 0f, 0f), 5f, new Vector3f(255f, 0f, 0f)));
+		scene.addLight(new Light(new Vector3f(5f, 0f, 0f), 5f, new Vector3f(0f, 255f, 0f)));
+		return scene;
+	}
+
 	private Scene scene_ballAndPlane()
 	{
 		Scene scene = new Scene();
-		scene.addObject(new Plane(new Vector3f(0.0f, -2.0f, 0.0f), new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(255.0f, 255.0f, 255.0f)));
-		scene.addObject(new Sphere(new Vector3f(0.0f, 0.0f, 10.0f), 2.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
-		scene.addObject(new Sphere(new Vector3f(3.0f, -1.0f, 7.0f), 1.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
-		scene.addObject(new Sphere(new Vector3f(-3.0f, -1.0f, 7.0f), 1.0f, new Vector3f(255.0f, 255.0f, 255.0f)));
+		scene.addObject(new Plane(new Vector3f(0f, -2f, 0f), new Vector3f(0f, 1f, 0f), new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(0f, 0f, 10f), 2f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Sphere(new Vector3f(-3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
 
-		scene.addLight(new Light(new Vector3f(-7.0f, 2.0f, 0.0f), 5.0f, new Vector3f(255.0f, 153.0f, 51.0f)));
-		scene.addLight(new Light(new Vector3f(7.0f, 2.0f, 0.0f), 5.0f, new Vector3f(51.0f, 153.0f, 255.0f)));
+		scene.addLight(new Light(new Vector3f(-7f, 2f, 0f), 5f, new Vector3f(255f, 153f, 51f)));
+		scene.addLight(new Light(new Vector3f(7f, 2f, 0f), 5f, new Vector3f(51f, 153f, 255f)));
 		return scene;
 	}
 
@@ -121,17 +135,17 @@ public class MRay
 			{
 				for (int k = 0; k < 4; k++)
 				{
-					scene.addObject(new Sphere(new Vector3f(-3.0f + i * 2.0f,
-															-3.0f + j * 2.0f,
-															 7.0f + k * 2.0f), 1.0f,
-											   new Vector3f(255.0f, 255.0f, 255.0f)));
+					scene.addObject(new Sphere(new Vector3f(-3f + i * 2f,
+															-3f + j * 2f,
+															 7f + k * 2f), 1f,
+											   new Vector3f(255f, 255f, 255f)));
 				}
 			}
 		}
 
-		scene.addLight(new Light(new Vector3f(0.0f, 0.0f, 0.0f), 2.0f, new Vector3f(255.0f, 0.0f, 0.0f)));
-		scene.addLight(new Light(new Vector3f(-8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 255.0f, 0.0f)));
-		scene.addLight(new Light(new Vector3f(8.0f, 0.0f, 8.0f), 5.0f, new Vector3f(0.0f, 0.0f, 255.0f)));
+		scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 2f, new Vector3f(255f, 0f, 0f)));
+		scene.addLight(new Light(new Vector3f(-8f, 0f, 8f), 5f, new Vector3f(0f, 255f, 0f)));
+		scene.addLight(new Light(new Vector3f(8f, 0f, 8f), 5f, new Vector3f(0f, 0f, 255f)));
 		return scene;
 	}
 
