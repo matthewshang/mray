@@ -19,12 +19,13 @@ public class MRay
 
 	public void start()
 	{		
-		Scene scene = scene_cylinder();
-		// Scene scene = scene_ballAndPlane();
+		// Scene scene = scene_box();
+		// Scene scene = scene_cylinder();
+		Scene scene = scene_ballAndPlane();
 		// Scene scene = scene_ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 4, getCores());
+		traceImage(scene, m_display, 4, getCores() - 1);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
@@ -100,6 +101,37 @@ public class MRay
 
 	}
 
+	// private Scene scene_box()
+	// {
+	// 	Scene scene = new Scene();
+	// 	scene.addObject(new Plane(new Vector3f(4f, 0f, 0f), new Vector3f(-1f, 0f, 0f), new Vector3f(255f, 0f, 0f)));
+
+	// 	scene.addObject(new Plane(new Vector3f(-4f, 0f, 0f), new Vector3f(1f, 0f, 0f), new Vector3f(0f, 0f, 255f)));
+	// 	scene.addObject(new Plane(new Vector3f(0f, 4f, 0f), new Vector3f(0f, -1f, 0f), new Vector3f(255f, 255f, 255f)));
+	// 	scene.addObject(new Plane(new Vector3f(0f, -4f, 0f), new Vector3f(0f, 1f, 0f), new Vector3f(255f, 255f, 255f)));
+	// 	scene.addObject(new Plane(new Vector3f(0f, 0f, 10f), new Vector3f(0f, 0f, -1f), new Vector3f(255f, 255f, 255f)));
+
+	// 	scene.addObject(new Sphere(new Vector3f(0f, 0f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
+
+	// 	scene.addLight(new Light(new Vector3f(-3f, 3.9f, 5f), 7f, new Vector3f(0f, 0f, 255f)));
+	// 	scene.addLight(new Light(new Vector3f(3f, 3.9f, 5f), 7f, new Vector3f(255f, 0f, 0f)));
+	// 	scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 3f, new Vector3f(255f, 255f, 255f)));
+	// 	scene.addLight(new Light(new Vector3f(-3f, 0f, 6f), 7f, new Vector3f(255f, 255f, 255f)));
+
+	// 	return scene;
+
+	// }
+
+	private Scene scene_box()
+	{
+		Scene scene = new Scene();
+		
+		scene.addObject(new Sphere(new Vector3f(0f, 0f, 5f), 1f, new Vector3f(255f, 255f, 255f)));
+		scene.addLight(new Light(new Vector3f(0f, 0f, 10f), 4f, new Vector3f(255f, 0f, 0f)));
+		return scene;
+
+	}
+
 	private Scene scene_cylinder()
 	{
 		Scene scene = new Scene();
@@ -107,6 +139,7 @@ public class MRay
 		scene.addObject(new Sphere(new Vector3f(1f, 0f, 3f), 0.5f, new Vector3f(255f, 255f, 255f)));
 		scene.addObject(new Sphere(new Vector3f(-1f, 0f, 3f), 0.5f, new Vector3f(255f, 255f, 255f)));
 		scene.addObject(new Sphere(new Vector3f(2f, 1f, 3f), 0.25f, new Vector3f(255f, 255f, 255f)));
+		scene.addObject(new Plane(new Vector3f(0f, 0f, 10f), new Vector3f(0f, 0f, -1f), new Vector3f(255f, 255f, 255f)));
 
 		scene.addLight(new Light(new Vector3f(-5f, 0f, 0f), 5f, new Vector3f(255f, 0f, 0f)));
 		scene.addLight(new Light(new Vector3f(5f, 0f, 0f), 5f, new Vector3f(0f, 255f, 0f)));
@@ -121,8 +154,8 @@ public class MRay
 		scene.addObject(new Sphere(new Vector3f(3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
 		scene.addObject(new Sphere(new Vector3f(-3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
 
-		scene.addLight(new Light(new Vector3f(-7f, 2f, 0f), 5f, new Vector3f(255f, 153f, 51f)));
-		scene.addLight(new Light(new Vector3f(7f, 2f, 0f), 5f, new Vector3f(51f, 153f, 255f)));
+		scene.addLight(new Light(new Vector3f(-7f, 3f, 0f), 5f, new Vector3f(255f, 153f, 51f)));
+		scene.addLight(new Light(new Vector3f(7f, 3f, 0f), 5f, new Vector3f(51f, 153f, 255f)));
 		return scene;
 	}
 
