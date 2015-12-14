@@ -1,37 +1,50 @@
 public class RaytracerProcess extends Thread
 {
-	private int[] m_buffer;
-	private int m_start;
-	private int m_end;
-	private int m_width;
 	private int m_samples;
 	private float m_heightRatio;
 	private Scene m_scene;
 	private Vector3f m_camera;
 	private float m_pixelSize;
+	private RenderChunk m_chunk;
+	private boolean m_isRunning;
+	private CubbyHole m_chunker;
 
-	public void init(int[] buffer, int start, int end, int width, int samples, 
-					 float heightRatio, Scene scene, Vector3f camera, float pixelSize)
+	public void init(CubbyHole chunker, int samples, float heightRatio, Scene scene, Vector3f camera, float pixelSize)
 	{
-		m_buffer = buffer;
-		m_start = start;
-		m_end = end;
-		m_width = width;
 		m_samples = samples;
 		m_heightRatio = heightRatio;
 		m_scene = scene;
 		m_camera = camera;
 		m_pixelSize = pixelSize;
+		m_isRunning = true;
+		m_chunker = chunker;
+	}
+
+	public void stopPlease()
+	{
+		m_isRunning = false;
 	}
 
 	public void run()
 	{
-		for (int y = m_start; y < m_end; y++)
+		while (m_isRunning)
 		{
-			for (int x = 0; x < m_width; x++)
+			// if (!m_chunker.hasChunks())
+			// {
+			// 	m_isRunning = false;
+			// 	continue;
+			// }
+
+			m_chunk = m_chunker.get();
+			// System.out.println(m_chunk.id);
+
+			for (int y = m_chunk.getStartY(); y < m_chunk.getEndY(); y++)
 			{
-				Vector3f color = tracePixel(x, y);
-				m_buffer[y * m_width + x] = (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ();
+				for (int x = m_chunk.getStartX(); x < m_chunk.getEndX(); x++)
+				{
+					Vector3f color = tracePixel(x, y);
+					m_chunk.setAt(x, y, (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ());
+				}
 			}
 		}
 	}

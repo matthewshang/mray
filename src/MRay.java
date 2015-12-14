@@ -9,6 +9,8 @@ public class MRay
 	private Display m_display;
 	private static int WIDTH = 960;
 	private static int HEIGHT = 720;
+	private static int CHUNK_WIDTH = 96;
+	private static int CHUNK_HEIGHT = 72;
 	private static float HEIGHT_WIDTH_RATIO = (float) HEIGHT / (float) WIDTH;
 	private static float PIXEL_SIZE = 2f / (float) WIDTH;
 
@@ -25,7 +27,7 @@ public class MRay
 		// Scene scene = scene_ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 4, getCores() - 1);
+		traceImage(scene, m_display, 8, getCores() - 1);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
@@ -53,38 +55,76 @@ public class MRay
 
 	private void traceImage(Scene scene, Display display, int samplesPerPixel, int numberOfThreads)
 	{
-		int[] buffer = display.getPixels();
 		Vector3f camera = new Vector3f(0f, 0f, 0f);
 
 		RaytracerProcess[] threads = new RaytracerProcess[numberOfThreads];
-		int threadHeight = HEIGHT / threads.length;
-		int lastThread = threadHeight + (HEIGHT - threadHeight * threads.length);
+		CubbyHole chunker = new CubbyHole();
 
-		for (int i = 0; i < threads.length - 1; i++)
+		for (int i = 0; i < threads.length; i++)
 		{
 			threads[i] = new RaytracerProcess();
-			threads[i].init(buffer, threadHeight * i, threadHeight * (i + 1), WIDTH, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
+			threads[i].init(chunker, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
 		}
-		threads[threads.length - 1] = new RaytracerProcess();
-		threads[threads.length - 1].init(buffer, HEIGHT - lastThread, HEIGHT, WIDTH, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
+
+		RenderChunk[] chunks = chunkImage(WIDTH, HEIGHT, CHUNK_WIDTH, CHUNK_HEIGHT);
 
 		for (int i = 0; i < threads.length; i++)
 		{
 			threads[i].start();
 		}
 
+		int currentChunk = 0;
+
+		while (currentChunk < chunks.length)
+		{
+			// System.out.println();
+			// System.out.println(currentChunk);
+			chunker.put(chunks[currentChunk++]);
+			// System.out.println(currentChunk);
+		}
+
+        chunker.put(chunks[chunks.length -1]);
+		
+		for (int i = 0; i < threads.length; i++)
+		{
+			threads[i].stopPlease();
+		}
+
 		for (int i = 0; i < threads.length; i++)
 		{
 			try
 			{
-				threads[i].join();
+				threads[i].join();				
 			}
 			catch (InterruptedException ex)
 			{
-				ex.printStackTrace();
+
 			}
 		}
 
+		int[] buffer = display.getPixels();
+		for (int i = 0; i < chunks.length; i++)
+		{
+			chunks[i].copyToBuffer(buffer, WIDTH);
+		}
+	}
+
+	private RenderChunk[] chunkImage(int imageWidth, int imageHeight, int chunkWidth, int chunkHeight)
+	{
+		int columns = imageWidth / chunkWidth;
+		int rows = imageHeight / chunkHeight;
+		RenderChunk[] chunks = new RenderChunk[columns * rows];
+		for (int row = 0; row < rows; row++)
+		{
+			for (int column = 0; column < columns; column++)
+			{
+				chunks[row * columns + column] = new RenderChunk(chunkWidth * column, chunkWidth * (column + 1),
+																 chunkHeight * row, chunkHeight * (row + 1));
+				chunks[row * columns + column].id = row * columns + column;
+			}
+		}
+
+		return chunks;
 	}
 
 	private void saveImage()
