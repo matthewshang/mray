@@ -77,17 +77,15 @@ public class MRay
 
 		while (currentChunk < chunks.length)
 		{
-			// System.out.println();
-			// System.out.println(currentChunk);
 			chunker.put(chunks[currentChunk++]);
-			// System.out.println(currentChunk);
 		}
 
-        chunker.put(chunks[chunks.length -1]);
+		// To fix weird bug of last chunk not having time to finish
+        chunker.put(chunks[chunks.length - 1]);
 		
 		for (int i = 0; i < threads.length; i++)
 		{
-			threads[i].stopPlease();
+			threads[i].stopRunning();
 		}
 
 		for (int i = 0; i < threads.length; i++)
@@ -98,7 +96,7 @@ public class MRay
 			}
 			catch (InterruptedException ex)
 			{
-
+				ex.printStackTrace();
 			}
 		}
 

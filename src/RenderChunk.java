@@ -29,7 +29,6 @@ public class RenderChunk
 			for (int x = m_startX; x < m_endX; x++)
 			{
 				int value = m_pixels[(y - m_startY) * (m_endX - m_startX) + (x - m_startX)];
-				// System.out.println(x + ", " + y + ":" + value);
 				buffer[y * width + x] = value;
 			}
 		}

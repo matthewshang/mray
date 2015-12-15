@@ -20,7 +20,7 @@ public class RaytracerProcess extends Thread
 		m_chunker = chunker;
 	}
 
-	public void stopPlease()
+	public void stopRunning()
 	{
 		m_isRunning = false;
 	}
@@ -29,14 +29,7 @@ public class RaytracerProcess extends Thread
 	{
 		while (m_isRunning)
 		{
-			// if (!m_chunker.hasChunks())
-			// {
-			// 	m_isRunning = false;
-			// 	continue;
-			// }
-
 			m_chunk = m_chunker.get();
-			// System.out.println(m_chunk.id);
 
 			for (int y = m_chunk.getStartY(); y < m_chunk.getEndY(); y++)
 			{
