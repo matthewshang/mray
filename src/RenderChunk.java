@@ -5,7 +5,6 @@ public class RenderChunk
 	private int m_endX;
 	private int m_startY;
 	private int m_endY;
-	public int id; 
 
 	public RenderChunk(int startX, int endX, int startY, int endY)
 	{

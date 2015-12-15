@@ -11,8 +11,6 @@ public class MRay
 	private static int HEIGHT = 720;
 	private static int CHUNK_WIDTH = 96;
 	private static int CHUNK_HEIGHT = 72;
-	private static float HEIGHT_WIDTH_RATIO = (float) HEIGHT / (float) WIDTH;
-	private static float PIXEL_SIZE = 2f / (float) WIDTH;
 
 	public MRay()
 	{
@@ -39,7 +37,6 @@ public class MRay
 			saveImage();
 		}
 
-
 		while (true)
 		{
 			try
@@ -57,22 +54,22 @@ public class MRay
 	{
 		Vector3f camera = new Vector3f(0f, 0f, 0f);
 
-		RaytracerProcess[] threads = new RaytracerProcess[numberOfThreads];
 		CubbyHole chunker = new CubbyHole();
+		Renderer renderer = new Renderer(WIDTH, HEIGHT, samplesPerPixel, scene);
+		MRayWorker[] workers = new MRayWorker[numberOfThreads];
 
-		for (int i = 0; i < threads.length; i++)
+		for (int i = 0; i < workers.length; i++)
 		{
-			threads[i] = new RaytracerProcess();
-			threads[i].init(chunker, samplesPerPixel, HEIGHT_WIDTH_RATIO, scene, camera, PIXEL_SIZE);
+			workers[i] = new MRayWorker();
+			workers[i].init(chunker, renderer);
+		}
+
+		for (int i = 0; i < workers.length; i++)
+		{
+			workers[i].start();
 		}
 
 		RenderChunk[] chunks = chunkImage(WIDTH, HEIGHT, CHUNK_WIDTH, CHUNK_HEIGHT);
-
-		for (int i = 0; i < threads.length; i++)
-		{
-			threads[i].start();
-		}
-
 		int currentChunk = 0;
 
 		while (currentChunk < chunks.length)
@@ -82,17 +79,17 @@ public class MRay
 
 		// To fix weird bug of last chunk not having time to finish
         chunker.put(chunks[chunks.length - 1]);
-		
-		for (int i = 0; i < threads.length; i++)
-		{
-			threads[i].stopRunning();
-		}
 
-		for (int i = 0; i < threads.length; i++)
+        for (int i = 0; i < workers.length; i++)
+        {
+        	workers[i].stopRunning();
+        }
+
+		for (int i = 0; i < workers.length; i++)
 		{
 			try
 			{
-				threads[i].join();				
+				workers[i].join();				
 			}
 			catch (InterruptedException ex)
 			{
@@ -118,7 +115,6 @@ public class MRay
 			{
 				chunks[row * columns + column] = new RenderChunk(chunkWidth * column, chunkWidth * (column + 1),
 																 chunkHeight * row, chunkHeight * (row + 1));
-				chunks[row * columns + column].id = row * columns + column;
 			}
 		}
 
