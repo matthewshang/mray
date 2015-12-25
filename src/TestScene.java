@@ -43,8 +43,8 @@ public class TestScene
 		scene.addObject(new Sphere(new Vector3f(3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
 		scene.addObject(new Sphere(new Vector3f(-3f, -1f, 7f), 1f, new Vector3f(255f, 255f, 255f)));
 
-		scene.addLight(new Light(new Vector3f(-7f, 3f, 0f), 5f, new Vector3f(255f, 153f, 51f)));
-		scene.addLight(new Light(new Vector3f(7f, 3f, 0f), 5f, new Vector3f(51f, 153f, 255f)));
+		scene.addLight(new Light(new Vector3f(-7f, 3f, 0f), 40f, new Vector3f(255f, 153f, 51f)));
+		scene.addLight(new Light(new Vector3f(7f, 3f, 0f), 40f, new Vector3f(51f, 153f, 255f)));
 
 		return scene;
 	}
@@ -67,9 +67,9 @@ public class TestScene
 			}
 		}
 
-		scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 2f, new Vector3f(255f, 0f, 0f)));
-		scene.addLight(new Light(new Vector3f(-8f, 0f, 8f), 5f, new Vector3f(0f, 255f, 0f)));
-		scene.addLight(new Light(new Vector3f(8f, 0f, 8f), 5f, new Vector3f(0f, 0f, 255f)));
+		scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 20f, new Vector3f(255f, 0f, 0f)));
+		scene.addLight(new Light(new Vector3f(-8f, 0f, 8f), 20f, new Vector3f(0f, 255f, 0f)));
+		scene.addLight(new Light(new Vector3f(8f, 0f, 8f), 20f, new Vector3f(0f, 0f, 255f)));
 
 		return scene;
 	}

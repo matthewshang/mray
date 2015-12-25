@@ -101,6 +101,8 @@ public class MRay
 		{
 			chunks[i].copyToBuffer(buffer, WIDTH);
 		}
+
+		display.setTitle("mray");
 	}
 
 	private void saveImage()

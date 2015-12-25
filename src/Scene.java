@@ -44,10 +44,6 @@ public class Scene
 					totalDiffuse.add(getDiffuse(light, min.getNormal(), inter));
 					totalSpecular.add(getSpecular(light, min.getNormal(), inter, new Vector3f(0f, 0f, 0f)));
 				}
-				else
-				{
-					// totalDiffuse.add(getDiffuse(light, min.getNormal(), inter).mul(0.4f));
-				}
 			}
 
 			Vector3f ambient = getAmbient(min.getColor());
@@ -111,7 +107,7 @@ public class Scene
 		Vector3f pointToLight = light.getPosition().getSub(point);
 		float distance = pointToLight.length();
 		float cos = Math.max(0f, pointToLight.dot(normal) / distance);
-		float intensity = Math.min(1f / cos, light.getRadius() / distance);
+		float intensity = Math.min(1f / cos, light.getRadius() / (distance * distance));
 		return light.getColor().getMul((cos * intensity) / 255f);
 	}
 
@@ -120,21 +116,9 @@ public class Scene
 		Vector3f lightPosition = light.getPosition();
 		Vector3f pointToLight = lightPosition.getSub(point);
 		Vector3f pointToEye = eye.getSub(point);
-		if (pointToLight.dot(normal) < 0f)
-		{
-			return new Vector3f(0f, 0f, 0f);
-		}
-		Vector3f reflected = normal.getMul(pointToLight.dot(normal))
-								   .sub(lightPosition).mul(2f)
-								   .add(lightPosition)
-								   .sub(point);
-		float cos = pointToEye.dot(reflected) / (pointToEye.length() * reflected.length());
-		if (cos < 0f)
-		{
-			System.out.println(cos);
-			cos = 0f;
-		}
-		Vector3f color = new Vector3f(255f, 255f, 255f);
-		return color.mul(0.15f).mul((float) Math.pow(cos, 90));
+		Vector3f reflected = normal.reflect(pointToLight);
+		float cos = Math.max(0f, pointToEye.dot(reflected) / (pointToEye.length() * reflected.length()));
+		float distance = pointToLight.length();
+		return light.getColor().getMul(0.5f).mul((float) Math.pow(cos, 10)).mul(light.getRadius() / (distance * distance));
 	}
 }

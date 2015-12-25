@@ -94,6 +94,11 @@ public class Vector3f
 		return this;
 	}
 
+	public Vector3f reflect(Vector3f v)
+	{
+		return getMul(dot(v)).sub(v).mul(2f).add(v);
+	}
+
 	public String toString()
 	{
 		return "(" + m_x + ", " + m_y + ", " + m_z + ")";
