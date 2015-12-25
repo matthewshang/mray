@@ -6,11 +6,12 @@ import java.io.IOException;
 
 public class MRay
 {
-	private Display m_display;
 	private static int WIDTH = 960;
 	private static int HEIGHT = 720;
 	private static int CHUNK_WIDTH = 96;
 	private static int CHUNK_HEIGHT = 72;
+
+	private Display m_display;
 
 	public MRay()
 	{
@@ -51,8 +52,6 @@ public class MRay
 
 	private void traceImage(Scene scene, Display display, int samplesPerPixel, int numberOfThreads)
 	{
-		Vector3f camera = new Vector3f(0f, 0f, 0f);
-
 		CubbyHole chunker = new CubbyHole();
 		Renderer renderer = new Renderer(WIDTH, HEIGHT, samplesPerPixel, scene);
 		MRayWorker[] workers = new MRayWorker[numberOfThreads];
@@ -68,12 +67,13 @@ public class MRay
 			workers[i].start();
 		}
 
-		RenderChunk[] chunks = chunkImage(WIDTH, HEIGHT, CHUNK_WIDTH, CHUNK_HEIGHT);
+		RenderChunk[] chunks = renderer.getImageChunks(CHUNK_WIDTH, CHUNK_HEIGHT);
 		int currentChunk = 0;
 
 		while (currentChunk < chunks.length)
 		{
 			chunker.put(chunks[currentChunk++]);
+			display.setTitle(currentChunk + "/" + chunks.length);
 		}
 
 		// To fix weird bug of last chunk not having time to finish
@@ -101,23 +101,6 @@ public class MRay
 		{
 			chunks[i].copyToBuffer(buffer, WIDTH);
 		}
-	}
-
-	private RenderChunk[] chunkImage(int imageWidth, int imageHeight, int chunkWidth, int chunkHeight)
-	{
-		int columns = imageWidth / chunkWidth;
-		int rows = imageHeight / chunkHeight;
-		RenderChunk[] chunks = new RenderChunk[columns * rows];
-		for (int row = 0; row < rows; row++)
-		{
-			for (int column = 0; column < columns; column++)
-			{
-				chunks[row * columns + column] = new RenderChunk(chunkWidth * column, chunkWidth * (column + 1),
-																 chunkHeight * row, chunkHeight * (row + 1));
-			}
-		}
-
-		return chunks;
 	}
 
 	private void saveImage()

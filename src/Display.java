@@ -48,6 +48,11 @@ public class Display extends Canvas
 		return m_image;
 	}
 
+	public void setTitle(String title)
+	{
+		m_window.setTitle(title);
+	}
+
 	public void drawBuffer()
 	{
 		BufferStrategy b = getBufferStrategy();

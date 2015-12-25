@@ -24,6 +24,23 @@ public class Renderer
 		m_imageTop = m_heightWidthRatio * m_halfTanFOV;
 	}
 
+	public RenderChunk[] getImageChunks(int chunkWidth, int chunkHeight)
+	{
+		int columns = m_width / chunkWidth;
+		int rows = m_height / chunkHeight;
+		RenderChunk[] chunks = new RenderChunk[columns * rows];
+		for (int row = 0; row < rows; row++)
+		{
+			for (int column = 0; column < columns; column++)
+			{
+				chunks[row * columns + column] = new RenderChunk(chunkWidth * column, chunkWidth * (column + 1),
+																 chunkHeight * row, chunkHeight * (row + 1));
+			}
+		}
+
+		return chunks;
+	}
+
 	public void traceChunk(RenderChunk chunk)
 	{
 		for (int y = chunk.getStartY(); y < chunk.getEndY(); y++)
