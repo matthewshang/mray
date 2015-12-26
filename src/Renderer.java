@@ -98,9 +98,8 @@ public class Renderer
 			{
 				Light light = lights.get(i);
 				Ray lightRay = new Ray(inter, light.getPosition().getSub(inter));
-				Intersection toLight = getIntersection(lightRay, objects);
 
-				if (!toLight.isIntersect())
+				if (!isRayShadowed(lightRay, objects))
 				{
 					totalDiffuse.add(getDiffuse(light, min.getNormal(), inter));
 					totalSpecular.add(getSpecular(light, min.getNormal(), inter, Vector3f.zero()));
@@ -163,6 +162,21 @@ public class Renderer
 		{
 			return new Intersection();
 		}
+	}
+
+	private boolean isRayShadowed(Ray ray, ArrayList<EngineObject> objects)
+	{
+		Ray newRay = new Ray(ray.getPoint(0.001f), ray.getDirection());
+
+		for (int i = 0; i < objects.size(); i++)
+		{
+			if (objects.get(i).intersect(newRay).isIntersect())
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private Vector3f getAmbient(Vector3f color)
