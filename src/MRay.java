@@ -6,10 +6,12 @@ import java.io.IOException;
 
 public class MRay
 {
-	private static int WIDTH = 960;
-	private static int HEIGHT = 720;
-	private static int CHUNK_WIDTH = 96;
-	private static int CHUNK_HEIGHT = 72;
+	private final static int WIDTH = 1920;
+	private final static int HEIGHT = 1080;
+	private final static int CHUNK_WIDTH = 96;
+	private final static int CHUNK_HEIGHT = 72;
+	private final static int SAMPLES_PER_PIXEL = 1024;
+	private final static int MAX_DEPTH = 5;
 
 	private Display m_display;
 
@@ -25,7 +27,7 @@ public class MRay
 		// Scene scene = TestScene.ballCube();
 
 		long start = System.nanoTime();
-		traceImage(scene, m_display, 8, getCores() - 1);
+		traceImage(scene, m_display, SAMPLES_PER_PIXEL, MAX_DEPTH, getCores() - 1);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
@@ -50,10 +52,10 @@ public class MRay
 		}
 	}
 
-	private void traceImage(Scene scene, Display display, int samplesPerPixel, int numberOfThreads)
+	private void traceImage(Scene scene, Display display, int samplesPerPixel, int maxDepth, int numberOfThreads)
 	{
 		CubbyHole chunker = new CubbyHole();
-		Renderer renderer = new Renderer(WIDTH, HEIGHT, samplesPerPixel, scene);
+		Renderer renderer = new Renderer(display.getWidth(), display.getHeight(), samplesPerPixel, maxDepth, scene);
 		MRayWorker[] workers = new MRayWorker[numberOfThreads];
 
 		for (int i = 0; i < workers.length; i++)
@@ -116,7 +118,6 @@ public class MRay
 		{
 			ex.printStackTrace();
 		}
-
 	}
 
 	private int getCores()

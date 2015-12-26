@@ -15,7 +15,7 @@ public class TestScene
 
 	// 	scene.addLight(new Light(new Vector3f(-3f, 3.9f, 5f), 7f, new Vector3f(0f, 0f, 255f)));
 	// 	scene.addLight(new Light(new Vector3f(3f, 3.9f, 5f), 7f, new Vector3f(255f, 0f, 0f)));
-	// 	scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 3f, new Vector3f(255f, 255f, 255f)));
+	// 	scene.addLight(new Light(Vector3f.zero(), 3f, new Vector3f(255f, 255f, 255f)));
 	// 	scene.addLight(new Light(new Vector3f(-3f, 0f, 6f), 7f, new Vector3f(255f, 255f, 255f)));
 
 	// 	return scene;
@@ -67,7 +67,7 @@ public class TestScene
 			}
 		}
 
-		scene.addLight(new Light(new Vector3f(0f, 0f, 0f), 20f, new Vector3f(255f, 0f, 0f)));
+		scene.addLight(new Light(Vector3f.zero(), 20f, new Vector3f(255f, 0f, 0f)));
 		scene.addLight(new Light(new Vector3f(-8f, 0f, 8f), 20f, new Vector3f(0f, 255f, 0f)));
 		scene.addLight(new Light(new Vector3f(8f, 0f, 8f), 20f, new Vector3f(0f, 0f, 255f)));
 

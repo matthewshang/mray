@@ -4,6 +4,11 @@ public class Vector3f
 	private float m_y;
 	private float m_z;
 
+	public static Vector3f zero()
+	{
+		return new Vector3f(0f, 0f, 0f);
+	}
+
 	public Vector3f(float x, float y, float z)
 	{
 		m_x = x;
