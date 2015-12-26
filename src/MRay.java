@@ -4,6 +4,14 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
+import core.Display;
+import core.CubbyHole;
+import core.MRayWorker;
+import core.RenderChunk;
+import core.Renderer;
+import objects.Scene;
+import objects.TestScene;
+
 public class MRay
 {
 	private final static int WIDTH = 960;
