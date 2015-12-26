@@ -104,6 +104,14 @@ public class Vector3f
 		return getMul(dot(v)).sub(v).mul(2f).add(v);
 	}
 
+	// https://en.wikipedia.org/wiki/Snell%27s_law
+	public Vector3f refract(Vector3f v, float n1, float n2)
+	{
+		float r = n1 / n2;
+		float c = -1 * dot(v);
+		return v.getMul(r).add(getMul(r * c - (float) Math.sqrt(1f - r * r * (1 - c * c))));
+	}
+
 	public String toString()
 	{
 		return "(" + m_x + ", " + m_y + ", " + m_z + ")";
