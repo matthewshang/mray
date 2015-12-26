@@ -7,7 +7,7 @@ public class Renderer
 	private float m_pixelSize;
 	private float m_imageLeft;
 	private float m_imageTop;
-	private float m_halfTanFOV = (float) Math.tan(45f * (float) Math.PI / 180f);
+	private float m_halfTanFOV = (float) Math.tan(35f * (float) Math.PI / 180f);
 
 	private Scene m_scene;
 
