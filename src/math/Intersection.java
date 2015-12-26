@@ -1,27 +1,27 @@
 package math;
 
+import prim.Material;
+
 public class Intersection
 {
 	private float m_distance;
 	private Vector3f m_normal;
-	private boolean m_isIntersect;
-	private Vector3f m_color;
+	private Material m_material;
 	private int m_objectIndex;
+	private boolean m_isIntersect;
 
-	public Intersection(float distance, Vector3f normal, Vector3f color, int index)
+	public Intersection(float distance, Vector3f normal, Material material, int index)
 	{
 		m_distance = distance;
 		m_normal = normal.copy();
 		m_isIntersect = true;
-		m_color = color.copy();
+		m_material = material;
 		m_objectIndex = index;
 	}
 
 	public Intersection()
 	{
 		m_isIntersect = false;
-		m_distance = -1.0f;
-		m_objectIndex = -1;
 	}
 
 	public void setIndex(int index)
@@ -49,13 +49,8 @@ public class Intersection
 		return m_normal;
 	}
 
-	public Vector3f getColor()
+	public Material getMaterial()
 	{
-		return m_color;
-	}
-
-	public void print()
-	{
-		System.out.println("distance: " + m_distance + "\nnormal: " + m_normal.toString() + "\ncolor: " + m_color.toString() + "\nintersect: " + m_isIntersect);
+		return m_material;
 	}
 }

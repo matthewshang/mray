@@ -1,4 +1,4 @@
-package objects;
+package prim;
 
 import math.Intersection;
 import math.Ray;
@@ -9,14 +9,14 @@ public class Cylinder implements EngineObject
 	private Vector3f m_position;
 	private Vector3f m_axis;
 	private float m_radius;
-	private Vector3f m_color;
+	private Material m_material;
 
-	public Cylinder(Vector3f position, Vector3f axis, float radius, Vector3f color)
+	public Cylinder(Vector3f position, Vector3f axis, float radius, Material material)
 	{
 		m_position = position;
 		m_axis = axis.normalize();
 		m_radius = radius;
-		m_color = color;
+		m_material = material;
 	}
 
 	public Intersection intersect(Ray ray)
@@ -47,11 +47,11 @@ public class Cylinder implements EngineObject
 		{
 			if (dm < dp)
 			{
-				return new Intersection(dm, getNormal(ray, dm), m_color, -1);
+				return new Intersection(dm, getNormal(ray, dm), m_material, -1);
 			}
 			else
 			{
-				return new Intersection(dp, getNormal(ray, dp), m_color, -1);
+				return new Intersection(dp, getNormal(ray, dp), m_material, -1);
 			}
 		}
 		else
@@ -62,11 +62,11 @@ public class Cylinder implements EngineObject
 			}
 			else if (dp < 0f)
 			{
-				return new Intersection(dm , getNormal(ray, dm), m_color, -1);
+				return new Intersection(dm , getNormal(ray, dm), m_material, -1);
 			}
 			else if (dm < 0f)
 			{
-				return new Intersection(dp, getNormal(ray, dp), m_color, -1);
+				return new Intersection(dp, getNormal(ray, dp), m_material, -1);
 			}
 
 			return new Intersection();

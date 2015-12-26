@@ -9,8 +9,8 @@ import core.CubbyHole;
 import core.MRayWorker;
 import core.RenderChunk;
 import core.Renderer;
-import objects.Scene;
-import objects.TestScene;
+import prim.Scene;
+import prim.TestScene;
 
 public class MRay
 {

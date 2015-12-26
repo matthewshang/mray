@@ -1,4 +1,4 @@
-package objects;
+package prim;
 
 import java.util.ArrayList;
 

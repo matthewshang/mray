@@ -1,4 +1,4 @@
-package objects;
+package prim;
 
 import math.Intersection;
 import math.Ray;
@@ -8,13 +8,13 @@ public class Sphere implements EngineObject
 {
 	private Vector3f m_center;
 	private float m_radius;
-	private Vector3f m_color;
+	private Material m_material;
 
-	public Sphere(Vector3f center, float radius, Vector3f color)
+	public Sphere(Vector3f center, float radius, Material material)
 	{
 		m_center = center;
 		m_radius = radius;
-		m_color = color;
+		m_material = material;
 	}
 
 	public Intersection intersect(Ray ray)
@@ -33,7 +33,7 @@ public class Sphere implements EngineObject
 		float out = -1 * l.dot(o.getSub(m_center));
 		if (discrim == 0.0f)
 		{
-			return new Intersection(out, ray.getNormal(out, m_center), m_color, -1);
+			return new Intersection(out, ray.getNormal(out, m_center), m_material, -1);
 		}
 		discrim = (float) Math.sqrt(discrim);
 		float dp = out + discrim;
@@ -43,11 +43,11 @@ public class Sphere implements EngineObject
 		{
 			if (dm < dp)
 			{
-				return new Intersection(dm, ray.getNormal(dm, m_center), m_color, -1);
+				return new Intersection(dm, ray.getNormal(dm, m_center), m_material, -1);
 			}
 			else
 			{
-				return new Intersection(dp, ray.getNormal(dp, m_center), m_color, -1);
+				return new Intersection(dp, ray.getNormal(dp, m_center), m_material, -1);
 			}
 		}
 		else
@@ -58,11 +58,11 @@ public class Sphere implements EngineObject
 			}
 			else if (dp < 0.0f)
 			{
-				return new Intersection(dm, ray.getNormal(dm, m_center), m_color, -1);
+				return new Intersection(dm, ray.getNormal(dm, m_center), m_material, -1);
 			}
 			else if (dm < 0.0f)
 			{
-				return new Intersection(dp, ray.getNormal(dp, m_center), m_color, -1);
+				return new Intersection(dp, ray.getNormal(dp, m_center), m_material, -1);
 			}
 
 			return new Intersection();
