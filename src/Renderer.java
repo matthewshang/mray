@@ -63,7 +63,7 @@ public class Renderer
 		Vector3f color = new Vector3f(0f, 0f, 0f);
 		for (int i = 0; i < m_samples; i++)
 		{
-			color.add(m_scene.traceRay(new Ray(new Vector3f(0f, 0f, 0f), new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1f))));
+			color.add(m_scene.traceRay(new Ray(new Vector3f(0f, 0f, 0f), new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1f)), 0));
 		}
 
 		return color.mul(1f / (float) m_samples); 

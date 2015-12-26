@@ -22,9 +22,9 @@ public class Scene
 		m_lights.add(light);
 	}
 
-	public Vector3f traceRay(Ray ray)
+	public Vector3f traceRay(Ray ray, int depth)
 	{
-		Intersection min = getIntersection(ray, -1);
+		Intersection min = getIntersection(ray);
 
 		if (min.isIntersect())
 		{
@@ -37,7 +37,7 @@ public class Scene
 			{
 				Light light = m_lights.get(i);
 				Ray lightRay = new Ray(inter, light.getPosition().getSub(inter));
-				Intersection toLight = getIntersection(lightRay, min.getObjectIndex());
+				Intersection toLight = getIntersection(lightRay);
 
 				if (!toLight.isIntersect())
 				{
@@ -49,9 +49,20 @@ public class Scene
 			Vector3f ambient = getAmbient(min.getColor());
 			ambient.add(totalSpecular);
 			Vector3f objectColor = min.getColor();
-			return new Vector3f(Math.min(255f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
+			Vector3f color = new Vector3f(Math.min(255f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
 								Math.min(255f, objectColor.getY() * totalDiffuse.getY() + ambient.getY()),
 								Math.min(255f, objectColor.getZ() * totalDiffuse.getZ() + ambient.getZ()));
+			if (depth < 5 && min.getObjectIndex() > 0)
+			{
+				Vector3f reflected = traceRay(new Ray(inter, min.getNormal().reflect(ray.getDirection()).mul(-1f)), depth + 1);
+				
+				Vector3f finalColor = color.mul(0.4f).add(reflected.getMul(0.6f));
+				return finalColor;
+			}
+			else
+			{
+				return color;
+			}
 		}
 		else
 		{
@@ -59,7 +70,7 @@ public class Scene
 		}
 	}
 
-	private Intersection getIntersection(Ray ray, int ignore)
+	private Intersection getIntersection(Ray ray)
 	{
 		float dist = Float.MAX_VALUE;
 		Vector3f normal = new Vector3f(0f, 0f, 0f);
@@ -67,14 +78,11 @@ public class Scene
 		int index = -1;
 		boolean intersect = false;
 
+		Ray newRay = new Ray(ray.getPoint(0.001f), ray.getDirection());
+
 		for (int i = 0; i < m_objects.size(); i++)
 		{
-			if (i == ignore)
-			{
-				continue;
-			}
-
-			Intersection inter = m_objects.get(i).intersect(ray);
+			Intersection inter = m_objects.get(i).intersect(newRay);
 			if (inter.isIntersect() && inter.getDistance() < dist)
 			{
 				dist = inter.getDistance();
