@@ -82,6 +82,19 @@ public class Vector3f
 		return m_x * v.getX() + m_y * v.getY() + m_z * v.getZ();
 	}
 
+	public Vector3f mulComponents(Vector3f v)
+	{
+		m_x *= v.getX();
+		m_y *= v.getY();
+		m_z *= v.getZ();
+		return this;
+	}
+
+	public Vector3f getMulComponents(Vector3f v)
+	{
+		return new Vector3f(m_x * v.getX(), m_y * v.getY(), m_z * v.getZ());
+	}
+
 	public float lengthSquared()
 	{
 		return m_x * m_x + m_y * m_y + m_z * m_z;

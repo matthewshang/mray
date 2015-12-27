@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import math.Ray;
 import math.Vector3f;
+import matl.Material;
 import prim.EngineObject;
 import prim.Intersection;
 import prim.Light;
-import prim.Material;
 import scn.Scene;
 
 public class Renderer
@@ -90,8 +90,13 @@ public class Renderer
 		return low + (high - low) * (float) Math.random();
 	}
 
-	private Vector3f traceRay(Ray ray, int depth)
+	public Vector3f traceRay(Ray ray, int depth)
 	{
+		if (depth > m_maxDepth)
+		{
+			return Vector3f.zero();
+		}
+
 		ArrayList<EngineObject> objects = m_scene.getObjects();
 		ArrayList<Light> lights = m_scene.getLights();
 
@@ -100,17 +105,9 @@ public class Renderer
 		if (min.isIntersect())
 		{
 			Vector3f inter = ray.getPoint(min.getDistance());
-			Vector3f color = shadePoint(inter, min, objects, lights);
+			Vector3f color = min.getMaterial().shadePoint(this, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
 
-			if (depth < m_maxDepth && min.getMaterial().isReflective())
-			{
-				Vector3f reflected = traceRay(new Ray(inter, min.getNormal().reflect(ray.getDirection()).mul(-1f)), depth + 1);
-				return color.mul(0.4f).add(reflected.getMul(0.6f));
-			}
-			else
-			{
-				return color;
-			}
+			return color;
 		}
 		else
 		{
@@ -122,7 +119,7 @@ public class Renderer
 	{
 		float dist = Float.MAX_VALUE;
 		Vector3f normal = Vector3f.zero();
-		Material material = new Material(Vector3f.zero(), 0, Vector3f.zero(), false);
+		Material material = null;
 		int index = -1;
 		boolean intersect = false;
 
@@ -141,7 +138,7 @@ public class Renderer
 			}
 		}
 
-		if (intersect)
+		if (intersect && material != null)
 		{
 			return new Intersection(dist, normal, material, index);
 		}
@@ -151,39 +148,10 @@ public class Renderer
 		}
 	}
 
-	private Vector3f shadePoint(Vector3f point, Intersection intersection, ArrayList<EngineObject> objects, ArrayList<Light> lights)
-	{
-		Material material = intersection.getMaterial();
-
-		Vector3f totalDiffuse = Vector3f.zero();
-		Vector3f totalSpecular = Vector3f.zero();
-
-		for (int i = 0; i < lights.size(); i++)
-		{
-			Light light = lights.get(i);
-			Ray lightRay = new Ray(point, light.getPosition().getSub(point));
-
-			if (!isPointShadowed(lightRay, objects))
-			{
-				totalDiffuse.add(getDiffuse(light, intersection.getNormal(), point));
-				totalSpecular.add(getSpecular(light, intersection.getNormal(), point, Vector3f.zero(), material.getSpecularPower()));
-			}
-		}
-
-		Vector3f objectColor = material.getColor();
-		Vector3f ambient = getAmbient(objectColor).mul(material.getComponent(Material.COMPONENT_AMBIENT));
-		ambient.add(totalSpecular.mul(material.getComponent(Material.COMPONENT_SPECULAR)));
-		totalDiffuse.mul(material.getComponent(Material.COMPONENT_DIFFUSE));
-
-		return new Vector3f(Math.min(255f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
-							Math.min(255f, objectColor.getY() * totalDiffuse.getY() + ambient.getY()),
-							Math.min(255f, objectColor.getZ() * totalDiffuse.getZ() + ambient.getZ()));
-
-	}
-
-	private boolean isPointShadowed(Ray ray, ArrayList<EngineObject> objects)
+	public boolean isPointShadowed(Ray ray)
 	{
 		Ray newRay = new Ray(ray.getPoint(0.001f), ray.getDirection());
+		ArrayList<EngineObject> objects = m_scene.getObjects();
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -194,32 +162,5 @@ public class Renderer
 		}
 
 		return false;
-	}
-
-	private Vector3f getAmbient(Vector3f color)
-	{
-		return color.getAdd(m_scene.getSkyColor().getMul(0.01f));
-		// return color.getMul(0.4f);
-
-	}
-
-	private Vector3f getDiffuse(Light light, Vector3f normal, Vector3f point)
-	{
-		Vector3f pointToLight = light.getPosition().getSub(point);
-		float distance = pointToLight.length();
-		float cos = Math.max(0f, pointToLight.dot(normal) / distance);
-		float intensity = Math.min(1f / cos, light.getRadius() / (distance * distance));
-		return light.getColor().getMul((cos * intensity) / 255f);
-	}
-
-	private Vector3f getSpecular(Light light, Vector3f normal, Vector3f point, Vector3f eye, int power)
-	{
-		Vector3f lightPosition = light.getPosition();
-		Vector3f pointToLight = lightPosition.getSub(point);
-		Vector3f pointToEye = eye.getSub(point);
-		Vector3f reflected = normal.reflect(pointToLight);
-		float cos = Math.max(0f, pointToEye.dot(reflected) / (pointToEye.length() * reflected.length()));
-		float distance = pointToLight.length();
-		return light.getColor().getMul((float) Math.pow(cos, power)).mul(light.getRadius() / (distance * distance));
 	}
 }
