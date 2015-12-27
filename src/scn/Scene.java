@@ -1,8 +1,10 @@
-package prim;
+package scn;
 
 import java.util.ArrayList;
 
 import math.Vector3f;
+import prim.EngineObject;
+import prim.Light;
 
 public class Scene
 {

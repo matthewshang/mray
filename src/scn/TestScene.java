@@ -1,7 +1,13 @@
-package prim;
+package scn;
 
 import math.Vector3f;
+import prim.Cylinder;
+import prim.Light;
+import prim.Material;
+import prim.Plane;
+import prim.Sphere;
 
+// Temperory - Will put in scene describing text file parsing in later
 public class TestScene
 {
 	public static Scene ballAndPlane()

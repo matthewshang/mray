@@ -1,6 +1,6 @@
-package math;
+package prim;
 
-import prim.Material;
+import math.Vector3f;
 
 public class Intersection
 {

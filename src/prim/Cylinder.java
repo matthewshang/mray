@@ -1,6 +1,5 @@
 package prim;
 
-import math.Intersection;
 import math.Ray;
 import math.Vector3f;
 

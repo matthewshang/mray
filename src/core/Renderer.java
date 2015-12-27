@@ -2,13 +2,13 @@ package core;
 
 import java.util.ArrayList;
 
-import math.Intersection;
 import math.Ray;
 import math.Vector3f;
 import prim.EngineObject;
+import prim.Intersection;
 import prim.Light;
 import prim.Material;
-import prim.Scene;
+import scn.Scene;
 
 public class Renderer
 {
@@ -62,13 +62,13 @@ public class Renderer
 		{
 			for (int x = chunk.getStartX(); x < chunk.getEndX(); x++)
 			{
-				Vector3f color = tracePixel(x, y);
+				Vector3f color = samplePixel(x, y);
 				chunk.setAt(x, y, (int) color.getX() << 16 | (int) color.getY() << 8 | (int) color.getZ());
 			}
 		}
 	}
 
-	private Vector3f tracePixel(int imageX, int imageY)
+	private Vector3f samplePixel(int imageX, int imageY)
 	{
 		float left = m_imageLeft + m_pixelSize * imageX;
 		float right = left + m_pixelSize;
@@ -100,35 +100,9 @@ public class Renderer
 		if (min.isIntersect())
 		{
 			Vector3f inter = ray.getPoint(min.getDistance());
-			Material material = min.getMaterial();
+			Vector3f color = shadePoint(inter, min, objects, lights);
 
-			Vector3f totalDiffuse = Vector3f.zero();
-			Vector3f totalSpecular = Vector3f.zero();
-
-			for (int i = 0; i < lights.size(); i++)
-			{
-				Light light = lights.get(i);
-				Ray lightRay = new Ray(inter, light.getPosition().getSub(inter));
-
-				if (!isPointShadowed(lightRay, objects))
-				{
-					totalDiffuse.add(getDiffuse(light, min.getNormal(), inter));
-
-					totalSpecular.add(getSpecular(light, min.getNormal(), inter, Vector3f.zero(), material.getSpecularPower()));
-				}
-			}
-
-
-			Vector3f objectColor = material.getColor();
-			Vector3f ambient = getAmbient(objectColor).mul(material.getComponent(Material.COMPONENT_AMBIENT));
-			ambient.add(totalSpecular.mul(material.getComponent(Material.COMPONENT_SPECULAR)));
-			totalDiffuse.mul(material.getComponent(Material.COMPONENT_DIFFUSE));
-
-			Vector3f color = new Vector3f(Math.min(255f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
-										  Math.min(255f, objectColor.getY() * totalDiffuse.getY() + ambient.getY()),
-										  Math.min(255f, objectColor.getZ() * totalDiffuse.getZ() + ambient.getZ()));
-
-			if (depth < m_maxDepth && material.isReflective())
+			if (depth < m_maxDepth && min.getMaterial().isReflective())
 			{
 				Vector3f reflected = traceRay(new Ray(inter, min.getNormal().reflect(ray.getDirection()).mul(-1f)), depth + 1);
 				return color.mul(0.4f).add(reflected.getMul(0.6f));
@@ -175,6 +149,36 @@ public class Renderer
 		{
 			return new Intersection();
 		}
+	}
+
+	private Vector3f shadePoint(Vector3f point, Intersection intersection, ArrayList<EngineObject> objects, ArrayList<Light> lights)
+	{
+		Material material = intersection.getMaterial();
+
+		Vector3f totalDiffuse = Vector3f.zero();
+		Vector3f totalSpecular = Vector3f.zero();
+
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Light light = lights.get(i);
+			Ray lightRay = new Ray(point, light.getPosition().getSub(point));
+
+			if (!isPointShadowed(lightRay, objects))
+			{
+				totalDiffuse.add(getDiffuse(light, intersection.getNormal(), point));
+				totalSpecular.add(getSpecular(light, intersection.getNormal(), point, Vector3f.zero(), material.getSpecularPower()));
+			}
+		}
+
+		Vector3f objectColor = material.getColor();
+		Vector3f ambient = getAmbient(objectColor).mul(material.getComponent(Material.COMPONENT_AMBIENT));
+		ambient.add(totalSpecular.mul(material.getComponent(Material.COMPONENT_SPECULAR)));
+		totalDiffuse.mul(material.getComponent(Material.COMPONENT_DIFFUSE));
+
+		return new Vector3f(Math.min(255f, objectColor.getX() * totalDiffuse.getX() + ambient.getX()),
+							Math.min(255f, objectColor.getY() * totalDiffuse.getY() + ambient.getY()),
+							Math.min(255f, objectColor.getZ() * totalDiffuse.getZ() + ambient.getZ()));
+
 	}
 
 	private boolean isPointShadowed(Ray ray, ArrayList<EngineObject> objects)
