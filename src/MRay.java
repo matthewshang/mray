@@ -34,8 +34,10 @@ public class MRay
 		Scene scene = TestScene.ballAndPlane();
 		// Scene scene = TestScene.ballCube();
 
+		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, MAX_DEPTH, scene);
+
 		long start = System.nanoTime();
-		traceImage(scene, m_display, SAMPLES_PER_PIXEL, MAX_DEPTH, getCores() - 1);
+		traceImage(m_display, renderer, getCores() - 1);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
@@ -60,10 +62,9 @@ public class MRay
 		}
 	}
 
-	private void traceImage(Scene scene, Display display, int samplesPerPixel, int maxDepth, int numberOfThreads)
+	private void traceImage(Display display, Renderer renderer, int numberOfThreads)
 	{
 		CubbyHole chunker = new CubbyHole();
-		Renderer renderer = new Renderer(display.getWidth(), display.getHeight(), samplesPerPixel, maxDepth, scene);
 		MRayWorker[] workers = new MRayWorker[numberOfThreads];
 
 		for (int i = 0; i < workers.length; i++)
