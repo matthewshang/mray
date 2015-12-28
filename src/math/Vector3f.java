@@ -82,6 +82,13 @@ public class Vector3f
 		return m_x * v.getX() + m_y * v.getY() + m_z * v.getZ();
 	}
 
+	public Vector3f cross(Vector3f v)
+	{
+		return new Vector3f(m_y * v.getZ() - v.getY() * m_z,
+							m_x * v.getZ() - v.getX() * m_z,
+							v.getX() * m_y - m_x * v.getY());
+	}
+
 	public Vector3f mulComponents(Vector3f v)
 	{
 		m_x *= v.getX();
