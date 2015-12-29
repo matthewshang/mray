@@ -3,9 +3,9 @@ package matl;
 import java.util.ArrayList;
 
 import core.Renderer;
+import light.Light;
 import math.Vector3f;
 import math.Ray;
-import prim.Light;
 
 public class MirrorMaterial implements Material
 {
@@ -30,13 +30,7 @@ public class MirrorMaterial implements Material
 		{
 			for (int i = 0; i < lights.size(); i++)
 			{
-				Light light = lights.get(i);
-				Ray lightRay = new Ray(point, light.getPosition().getSub(point));
-
-				if (!renderer.isPointShadowed(lightRay))
-				{
-					totalDiffuse.add(getDiffuse(light, normal, point));
-				}
+				totalDiffuse.add(sampleLight(renderer, lights.get(i), point, normal, eye)[0]);
 			}
 		}
 
@@ -45,12 +39,47 @@ public class MirrorMaterial implements Material
 		return reflectedColor.getMulComponents(m_tint).mul(m_reflectedAmount).add(m_color.getMulComponents(totalDiffuse.mul(m_diffuseAmount)));
 	}
 
-	private Vector3f getDiffuse(Light light, Vector3f normal, Vector3f point)
+	public Vector3f[] sampleLight(Renderer renderer, Light light, Vector3f point, Vector3f normal, Vector3f eye)
 	{
-		Vector3f pointToLight = light.getPosition().getSub(point);
+		if (light.canBeSampled())
+		{
+			Vector3f diffuse = Vector3f.zero();
+
+			for (int i = 0; i < 256; i++)
+			{
+				Vector3f sample = light.getPointOn(point);
+				Ray lightRay = new Ray(point, sample.getSub(point));
+
+				if (!renderer.isPointShadowed(lightRay))
+				{
+					diffuse.add(getDiffuse(sample, light.getColor(), light.getPower(), normal, point));
+				}
+			}
+
+			diffuse.mul(1f / 256f);
+
+			return new Vector3f[]{diffuse};
+		}
+		else
+		{
+			if (!renderer.isPointShadowed(new Ray(point, light.getPointOn(point).getSub(point))))
+			{
+				return new Vector3f[]{getDiffuse(light.getPosition(), light.getColor(), light.getPower(), normal, point)};
+			}
+			else
+			{
+				return new Vector3f[]{Vector3f.zero()};
+			}
+		}
+
+	}
+
+	private Vector3f getDiffuse(Vector3f lightPosition, Vector3f lightColor, float lightPower, Vector3f normal, Vector3f point)
+	{
+		Vector3f pointToLight = lightPosition.getSub(point);
 		float distance = pointToLight.length();
 		float cos = Math.max(0f, pointToLight.dot(normal) / distance);
-		float intensity = Math.min(1f / cos, light.getRadius() / (distance * distance));
-		return light.getColor().getMul((cos * intensity) / 255f);
+		float intensity = Math.min(1f / cos, lightPower / (distance * distance));
+		return lightColor.getMul((cos * intensity) / 255f);
 	}
 }

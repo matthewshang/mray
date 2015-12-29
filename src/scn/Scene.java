@@ -2,9 +2,9 @@ package scn;
 
 import java.util.ArrayList;
 
+import light.Light;
 import math.Vector3f;
 import prim.EngineObject;
-import prim.Light;
 
 public class Scene
 {

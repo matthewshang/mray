@@ -1,11 +1,11 @@
 package scn;
 
+import light.PointLight;
+import light.SphereLight;
 import math.Vector3f;
-import matl.Material;
 import matl.PhongMaterial;
 import matl.MirrorMaterial;
 import prim.Cylinder;
-import prim.Light;
 import prim.Plane;
 import prim.Sphere;
 
@@ -24,8 +24,11 @@ public class TestScene
 		scene.addObject(new Sphere(new Vector3f(3f, -1f, 7f), 1f, m2));
 		scene.addObject(new Sphere(new Vector3f(-3f, -1f, 7f), 1f, m2));
 
-		scene.addLight(new Light(new Vector3f(-7f, 3f, 0f), 40f, new Vector3f(255f, 153f, 51f)));
-		scene.addLight(new Light(new Vector3f(7f, 3f, 0f), 40f, new Vector3f(51f, 153f, 255f)));
+		scene.addLight(new SphereLight(new Vector3f(-7f, 3f, 0f), 40f, 2.5f, new Vector3f(255f, 153f, 51f)));
+		scene.addLight(new SphereLight(new Vector3f(7f, 3f, 0f), 40f, 2.5f, new Vector3f(51f, 153f, 255f)));
+
+		// scene.addLight(new PointLight(new Vector3f(-7f, 3f, 0f), 40f, new Vector3f(255f, 153f, 51f)));
+		// scene.addLight(new PointLight(new Vector3f(7f, 3f, 0f), 40f, new Vector3f(51f, 153f, 255f)));
 
 		return scene;
 	}

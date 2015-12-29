@@ -18,7 +18,7 @@ public class MRay
 	private final static int HEIGHT = 720;
 	private final static int CHUNK_WIDTH = 96;
 	private final static int CHUNK_HEIGHT = 72;
-	private final static int SAMPLES_PER_PIXEL = 32;
+	private final static int SAMPLES_PER_PIXEL = 16;
 	private final static int MAX_DEPTH = 5;
 
 	private Display m_display;
@@ -44,7 +44,7 @@ public class MRay
 
 		m_display.drawBuffer();	
 
-		if (false)
+		if (true)
 		{
 			saveImage();
 		}

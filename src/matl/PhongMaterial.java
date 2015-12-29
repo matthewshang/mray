@@ -3,10 +3,10 @@ package matl;
 import java.util.ArrayList;
 
 import core.Renderer;
+import light.Light;
 import math.Ray;
 import math.Vector3f;
 import prim.EngineObject;
-import prim.Light;
 
 public class PhongMaterial implements Material
 {
@@ -28,14 +28,9 @@ public class PhongMaterial implements Material
 
 		for (int i = 0; i < lights.size(); i++)
 		{
-			Light light = lights.get(i);
-			Ray lightRay = new Ray(point, light.getPosition().getSub(point));
-
-			if (!renderer.isPointShadowed(lightRay))
-			{
-				totalDiffuse.add(getDiffuse(light, normal, point));
-				totalSpecular.add(getSpecular(light, normal, point, eye));
-			}
+			Vector3f[] components = sampleLight(renderer, lights.get(i), point, normal, eye);
+			totalDiffuse.add(components[0]);
+			totalSpecular.add(components[1]);
 		}
 
 		Vector3f ambient = getAmbient(m_color).mul(m_components.getX());
@@ -47,28 +42,65 @@ public class PhongMaterial implements Material
 							Math.min(255f, m_color.getZ() * totalDiffuse.getZ() + ambient.getZ()));
 	}
 
+	public Vector3f[] sampleLight(Renderer renderer, Light light, Vector3f point, Vector3f normal, Vector3f eye)
+	{
+		if (light.canBeSampled())
+		{
+			Vector3f diffuse = Vector3f.zero();
+			Vector3f specular = Vector3f.zero();
+
+			for (int i = 0; i < 256; i++)
+			{
+				Vector3f sample = light.getPointOn(point);
+				Ray lightRay = new Ray(point, sample.getSub(point));
+
+				if (!renderer.isPointShadowed(lightRay))
+				{
+					diffuse.add(getDiffuse(sample, light.getColor(), light.getPower(), normal, point));
+					specular.add(getSpecular(sample, light.getColor(), light.getPower(), normal, point, eye));
+				}
+			}
+
+			diffuse.mul(1f / 256f);
+			specular.mul(1f/ 256f);
+
+			return new Vector3f[]{diffuse, specular};
+		}
+		else
+		{
+			if (!renderer.isPointShadowed(new Ray(point, light.getPointOn(point).getSub(point))))
+			{
+				return new Vector3f[]{getDiffuse(light.getPosition(), light.getColor(), light.getPower(), normal, point), 
+									  getSpecular(light.getPosition(), light.getColor(), light.getPower(), normal, point, eye)};
+			}
+			else
+			{
+				return new Vector3f[]{Vector3f.zero(), Vector3f.zero()};
+			}
+		}
+	}
+
 	private Vector3f getAmbient(Vector3f color)
 	{
 		return color.getMul(m_components.getX());
 	}
 
-	private Vector3f getDiffuse(Light light, Vector3f normal, Vector3f point)
+	private Vector3f getDiffuse(Vector3f lightPosition, Vector3f lightColor, float lightPower, Vector3f normal, Vector3f point)
 	{
-		Vector3f pointToLight = light.getPosition().getSub(point);
+		Vector3f pointToLight = lightPosition.getSub(point);
 		float distance = pointToLight.length();
 		float cos = Math.max(0f, pointToLight.dot(normal) / distance);
-		float intensity = Math.min(1f / cos, light.getRadius() / (distance * distance));
-		return light.getColor().getMul((cos * intensity) / 255f);
+		float intensity = Math.min(1f / cos, lightPower / (distance * distance));
+		return lightColor.getMul((cos * intensity) / 255f);
 	}
 
-	private Vector3f getSpecular(Light light, Vector3f normal, Vector3f point, Vector3f eye)
+	private Vector3f getSpecular(Vector3f lightPosition, Vector3f lightColor, float lightPower, Vector3f normal, Vector3f point, Vector3f eye)
 	{
-		Vector3f lightPosition = light.getPosition();
 		Vector3f pointToLight = lightPosition.getSub(point);
 		Vector3f pointToEye = eye.getSub(point);
 		Vector3f reflected = normal.reflect(pointToLight);
 		float cos = Math.max(0f, pointToEye.dot(reflected) / (pointToEye.length() * reflected.length()));
 		float distance = pointToLight.length();
-		return light.getColor().getMul((float) Math.pow(cos, m_specularPower)).mul(light.getRadius() / (distance * distance));
+		return lightColor.getMul((float) Math.pow(cos, m_specularPower)).mul(lightPower / (distance * distance));
 	}
 }

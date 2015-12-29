@@ -22,6 +22,7 @@ public class Intersection
 
 	public Intersection()
 	{
+		m_distance = Float.MAX_VALUE;
 		m_isIntersect = false;
 	}
 

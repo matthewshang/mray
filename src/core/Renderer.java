@@ -2,12 +2,12 @@ package core;
 
 import java.util.ArrayList;
 
+import light.Light;
 import math.Ray;
 import math.Vector3f;
 import matl.Material;
 import prim.EngineObject;
 import prim.Intersection;
-import prim.Light;
 import scn.Scene;
 
 public class Renderer
@@ -101,6 +101,15 @@ public class Renderer
 		ArrayList<Light> lights = m_scene.getLights();
 
 		Intersection min = getIntersection(ray, objects);
+		// Intersection lightMin = getLightIntersection(ray, lights);
+
+		// if (min.getDistance() > lightMin.getDistance())
+		// {
+		// 	if (lightMin.isIntersect())
+		// 	{
+		// 		return lightMin.getNormal();
+		// 	}
+		// }
 
 		if (min.isIntersect())
 		{
@@ -141,6 +150,35 @@ public class Renderer
 		if (intersect && material != null)
 		{
 			return new Intersection(dist, normal, material, index);
+		}
+		else
+		{
+			return new Intersection();
+		}
+	}
+
+	private Intersection getLightIntersection(Ray ray, ArrayList<Light> lights)
+	{
+		float dist = Float.MAX_VALUE;
+		Vector3f color = Vector3f.zero();
+		boolean intersect = false;
+
+		Ray newRay = new Ray(ray.getPoint(0.001f), ray.getDirection());
+
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Intersection inter = lights.get(i).intersect(ray);
+			if (inter.isIntersect() && inter.getDistance() < dist)
+			{
+				dist = inter.getDistance();
+				color = lights.get(i).getColor();
+				intersect = true;
+			}
+		}
+
+		if (intersect)
+		{
+			return new Intersection(dist, color, null, -1);
 		}
 		else
 		{
