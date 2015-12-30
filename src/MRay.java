@@ -11,15 +11,17 @@ import core.RenderChunk;
 import core.Renderer;
 import scn.Scene;
 import scn.TestScene;
+import math.*;
 
 public class MRay
 {
-	private final static int WIDTH = 960;
-	private final static int HEIGHT = 720;
+	private final static int WIDTH = 1920;
+	private final static int HEIGHT = 1080;
 	private final static int CHUNK_WIDTH = 96;
 	private final static int CHUNK_HEIGHT = 72;
-	private final static int SAMPLES_PER_PIXEL = 16;
-	private final static int MAX_DEPTH = 5;
+	private final static int SAMPLES_PER_PIXEL = 32;
+	private final static int SAMPLES_PER_LIGHT = 4;
+	private final static int MAX_DEPTH = 4;
 
 	private Display m_display;
 
@@ -34,7 +36,7 @@ public class MRay
 		Scene scene = TestScene.ballAndPlane();
 		// Scene scene = TestScene.ballCube();
 
-		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, MAX_DEPTH, scene);
+		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, SAMPLES_PER_LIGHT, MAX_DEPTH, scene);
 
 		long start = System.nanoTime();
 		traceImage(m_display, renderer, getCores() - 1);
@@ -143,6 +145,7 @@ public class MRay
 
 	public static void main(String[] args)
 	{
+		// System.out.println(Sampler.sampleSphere(new Vector3f(0f, 1f, 0f).normalize(), 1f, 0f, 0f).toString());
 		MRay mray = new MRay();
 		mray.start();
 	}

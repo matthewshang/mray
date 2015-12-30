@@ -14,7 +14,8 @@ public class Renderer
 {
 	private int m_width;
 	private int m_height;
-	private int m_samples;
+	private int m_pixelSamples;
+	private int m_lightSamples;
 	private int m_maxDepth;
 	
 	private float m_heightWidthRatio;
@@ -25,11 +26,12 @@ public class Renderer
 
 	private Scene m_scene;
 
-	public Renderer(int width, int height, int samples, int maxDepth, Scene scene)
+	public Renderer(int width, int height, int pixelSamples, int lightSamples, int maxDepth, Scene scene)
 	{
 		m_width = width;
 		m_height = height;
-		m_samples = samples;
+		m_pixelSamples = pixelSamples;
+		m_lightSamples = lightSamples;
 		m_maxDepth = maxDepth;
 
 		m_heightWidthRatio = (float) m_height / (float) m_width;
@@ -76,13 +78,13 @@ public class Renderer
 		float bottom = top - m_pixelSize;
 
 		Vector3f color = Vector3f.zero();
-		for (int i = 0; i < m_samples; i++)
+		for (int i = 0; i < m_pixelSamples; i++)
 		{
 			Vector3f sample = new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1f);
 			color.add(traceRay(new Ray(Vector3f.zero(), sample), 0));
 		}
 
-		return color.mul(1f / (float) m_samples); 
+		return color.mul(1f / (float) m_pixelSamples); 
 	}
 
 	private float randomFloat(float low, float high)
@@ -114,7 +116,7 @@ public class Renderer
 		if (min.isIntersect())
 		{
 			Vector3f inter = ray.getPoint(min.getDistance());
-			Vector3f color = min.getMaterial().shadePoint(this, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
+			Vector3f color = min.getMaterial().shadePoint(this, m_lightSamples, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
 
 			return color;
 		}

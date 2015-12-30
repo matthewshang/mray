@@ -6,6 +6,7 @@ import core.Renderer;
 import light.Light;
 import math.Vector3f;
 import math.Ray;
+import math.Sampler;
 
 public class MirrorMaterial implements Material
 {
@@ -22,7 +23,7 @@ public class MirrorMaterial implements Material
 		m_diffuseAmount = diffuseAmount;
 	}
 
-	public Vector3f shadePoint(Renderer renderer, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
+	public Vector3f shadePoint(Renderer renderer, int lightSamples, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
 	{
 		Vector3f totalDiffuse = Vector3f.zero();
 
@@ -30,22 +31,28 @@ public class MirrorMaterial implements Material
 		{
 			for (int i = 0; i < lights.size(); i++)
 			{
-				totalDiffuse.add(sampleLight(renderer, lights.get(i), point, normal, eye)[0]);
+				totalDiffuse.add(sampleLight(renderer, lightSamples, lights.get(i), point, normal, eye));
 			}
 		}
 
-		Vector3f reflected = normal.reflect(rayDirection).mul(-1f);
-		Vector3f reflectedColor = renderer.traceRay(new Ray(reflected.getMul(0.001f).add(point), reflected), depth + 1);
+		Vector3f reflected = normal.reflect(rayDirection).mul(-1f).normalize();
+		Vector3f total = Vector3f.zero();
+		for (int i = 0; i < 16; i++)
+		{
+			total.add(renderer.traceRay(new Ray(point, Sampler.sampleSphere(reflected, 1f, 0f, (float) Math.PI / 12f)), depth + 1));
+
+		}
+		Vector3f reflectedColor = total.mul(1f / 16f);
 		return reflectedColor.getMulComponents(m_tint).mul(m_reflectedAmount).add(m_color.getMulComponents(totalDiffuse.mul(m_diffuseAmount)));
 	}
 
-	public Vector3f[] sampleLight(Renderer renderer, Light light, Vector3f point, Vector3f normal, Vector3f eye)
+	private Vector3f sampleLight(Renderer renderer, int lightSamples, Light light, Vector3f point, Vector3f normal, Vector3f eye)
 	{
 		if (light.canBeSampled())
 		{
 			Vector3f diffuse = Vector3f.zero();
 
-			for (int i = 0; i < 256; i++)
+			for (int i = 0; i < lightSamples; i++)
 			{
 				Vector3f sample = light.getPointOn(point);
 				Ray lightRay = new Ray(point, sample.getSub(point));
@@ -56,19 +63,19 @@ public class MirrorMaterial implements Material
 				}
 			}
 
-			diffuse.mul(1f / 256f);
+			diffuse.mul(1f / (float) lightSamples);
 
-			return new Vector3f[]{diffuse};
+			return diffuse;
 		}
 		else
 		{
 			if (!renderer.isPointShadowed(new Ray(point, light.getPointOn(point).getSub(point))))
 			{
-				return new Vector3f[]{getDiffuse(light.getPosition(), light.getColor(), light.getPower(), normal, point)};
+				return getDiffuse(light.getPosition(), light.getColor(), light.getPower(), normal, point);
 			}
 			else
 			{
-				return new Vector3f[]{Vector3f.zero()};
+				return Vector3f.zero();
 			}
 		}
 

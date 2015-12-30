@@ -4,7 +4,23 @@ public class Sampler
 {
 	public static Vector3f sampleSphere(Vector3f normal, float radius, float phi1, float phi2)
 	{
-		Vector3f tangent = new Vector3f(0f, -1f * normal.getZ(), normal.getY());
+		Vector3f tangent;
+		if (normal.getX() == 0f)
+		{
+			tangent = new Vector3f(1f, 0f, 0f);
+		}
+		else if (normal.getY() == 0f)
+		{
+			tangent = new Vector3f(0f, 1f, 0f);
+		}
+		else if (normal.getZ() == 0f)
+		{
+			tangent = new Vector3f(0f, 0f, 1f);
+		}
+		else
+		{
+			tangent = new Vector3f(0f, -1 * normal.getZ(), normal.getY());
+		}
 		tangent.normalize();
 		Vector3f bittangent = tangent.cross(normal);
 		Vector3f sampled = sampleUnitSphere(phi1, phi2);
