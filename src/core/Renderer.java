@@ -16,6 +16,7 @@ public class Renderer
 	private int m_height;
 	private int m_pixelSamples;
 	private int m_lightSamples;
+	private int m_reflectionSamples;
 	private int m_maxDepth;
 	
 	private float m_heightWidthRatio;
@@ -26,12 +27,13 @@ public class Renderer
 
 	private Scene m_scene;
 
-	public Renderer(int width, int height, int pixelSamples, int lightSamples, int maxDepth, Scene scene)
+	public Renderer(int width, int height, int pixelSamples, int lightSamples, int reflectionSamples, int maxDepth, Scene scene)
 	{
 		m_width = width;
 		m_height = height;
 		m_pixelSamples = pixelSamples;
 		m_lightSamples = lightSamples;
+		m_reflectionSamples = reflectionSamples;
 		m_maxDepth = maxDepth;
 
 		m_heightWidthRatio = (float) m_height / (float) m_width;
@@ -39,6 +41,16 @@ public class Renderer
 		m_scene = scene;
 		m_imageLeft = -1f * m_halfTanFOV;
 		m_imageTop = m_heightWidthRatio * m_halfTanFOV;
+	}
+
+	public int getLightSamples()
+	{
+		return m_lightSamples;
+	}
+
+	public int getReflectionSamples()
+	{
+		return m_reflectionSamples;
 	}
 
 	public RenderChunk[] getImageChunks(int chunkWidth, int chunkHeight)
@@ -116,7 +128,7 @@ public class Renderer
 		if (min.isIntersect())
 		{
 			Vector3f inter = ray.getPoint(min.getDistance());
-			Vector3f color = min.getMaterial().shadePoint(this, m_lightSamples, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
+			Vector3f color = min.getMaterial().shadePoint(this, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
 
 			return color;
 		}

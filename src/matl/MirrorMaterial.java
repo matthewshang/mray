@@ -12,18 +12,20 @@ public class MirrorMaterial implements Material
 {
 	private Vector3f m_color;
 	private Vector3f m_tint;
+	private float m_glossiness;
 	private float m_reflectedAmount;
 	private float m_diffuseAmount;
 
-	public MirrorMaterial(Vector3f color, Vector3f tint, float reflectedAmount, float diffuseAmount)
+	public MirrorMaterial(Vector3f color, Vector3f tint, float glossiness, float reflectedAmount, float diffuseAmount)
 	{
 		m_color = color;
 		m_tint = tint;
+		m_glossiness = glossiness;
 		m_reflectedAmount = reflectedAmount;
 		m_diffuseAmount = diffuseAmount;
 	}
 
-	public Vector3f shadePoint(Renderer renderer, int lightSamples, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
+	public Vector3f shadePoint(Renderer renderer, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
 	{
 		Vector3f totalDiffuse = Vector3f.zero();
 
@@ -31,28 +33,38 @@ public class MirrorMaterial implements Material
 		{
 			for (int i = 0; i < lights.size(); i++)
 			{
-				totalDiffuse.add(sampleLight(renderer, lightSamples, lights.get(i), point, normal, eye));
+				totalDiffuse.add(sampleLight(renderer, lights.get(i), point, normal, eye));
 			}
 		}
 
-		Vector3f reflected = normal.reflect(rayDirection).mul(-1f).normalize();
-		Vector3f total = Vector3f.zero();
-		for (int i = 0; i < 16; i++)
-		{
-			total.add(renderer.traceRay(new Ray(point, Sampler.sampleSphere(reflected, 1f, 0f, (float) Math.PI / 12f)), depth + 1));
+		Vector3f reflectedDirection = normal.reflect(rayDirection).mul(-1f).normalize();
+		Vector3f reflectedColor = Vector3f.zero();
 
+		if (m_glossiness == 0f)
+		{
+			reflectedColor.add(renderer.traceRay(new Ray(point, reflectedDirection), depth + 1));
 		}
-		Vector3f reflectedColor = total.mul(1f / 16f);
+		else
+		{
+			for (int i = 0; i < renderer.getReflectionSamples(); i++)
+			{
+				reflectedColor.add(renderer.traceRay(new Ray(point, Sampler.sampleSphere(reflectedDirection, 1f, 0f, (float) Math.PI * m_glossiness / 2f)), depth + 1));
+
+			}
+
+			reflectedColor.mul(1f / (float) renderer.getReflectionSamples());
+		}
+
 		return reflectedColor.getMulComponents(m_tint).mul(m_reflectedAmount).add(m_color.getMulComponents(totalDiffuse.mul(m_diffuseAmount)));
 	}
 
-	private Vector3f sampleLight(Renderer renderer, int lightSamples, Light light, Vector3f point, Vector3f normal, Vector3f eye)
+	private Vector3f sampleLight(Renderer renderer, Light light, Vector3f point, Vector3f normal, Vector3f eye)
 	{
 		if (light.canBeSampled())
 		{
 			Vector3f diffuse = Vector3f.zero();
 
-			for (int i = 0; i < lightSamples; i++)
+			for (int i = 0; i < renderer.getLightSamples(); i++)
 			{
 				Vector3f sample = light.getPointOn(point);
 				Ray lightRay = new Ray(point, sample.getSub(point));
@@ -63,7 +75,7 @@ public class MirrorMaterial implements Material
 				}
 			}
 
-			diffuse.mul(1f / (float) lightSamples);
+			diffuse.mul(1f / (float) renderer.getLightSamples());
 
 			return diffuse;
 		}

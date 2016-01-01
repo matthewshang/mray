@@ -15,13 +15,16 @@ import math.*;
 
 public class MRay
 {
+	// private final static int WIDTH = 1920;
+	// private final static int HEIGHT = 1080;
 	private final static int WIDTH = 1920;
 	private final static int HEIGHT = 1080;
 	private final static int CHUNK_WIDTH = 96;
 	private final static int CHUNK_HEIGHT = 72;
-	private final static int SAMPLES_PER_PIXEL = 32;
-	private final static int SAMPLES_PER_LIGHT = 4;
-	private final static int MAX_DEPTH = 4;
+	private final static int SAMPLES_PER_PIXEL = 64;
+	private final static int SAMPLES_PER_LIGHT = 2;
+	private final static int SAMPLES_PER_REFLECTION = 8;
+	private final static int MAX_DEPTH = 5;
 
 	private Display m_display;
 
@@ -32,11 +35,11 @@ public class MRay
 
 	public void start()
 	{		
-		// Scene scene = TestScene.box();
-		Scene scene = TestScene.ballAndPlane();
-		// Scene scene = TestScene.ballCube();
+		// Scene scene = TestScene.glossyBalls();
+		// Scene scene = TestScene.ballAndPlane();
+		Scene scene = TestScene.coloredBalls();
 
-		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, SAMPLES_PER_LIGHT, MAX_DEPTH, scene);
+		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, SAMPLES_PER_LIGHT, SAMPLES_PER_REFLECTION, MAX_DEPTH, scene);
 
 		long start = System.nanoTime();
 		traceImage(m_display, renderer, getCores() - 1);

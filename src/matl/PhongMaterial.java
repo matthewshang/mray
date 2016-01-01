@@ -21,14 +21,14 @@ public class PhongMaterial implements Material
 		m_color = color;
 	}
 
-	public Vector3f shadePoint(Renderer renderer, int lightSamples, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
+	public Vector3f shadePoint(Renderer renderer, Vector3f rayDirection, int depth, Vector3f point, Vector3f eye, Vector3f normal, ArrayList<Light> lights)
 	{
 		Vector3f totalDiffuse = Vector3f.zero();
 		Vector3f totalSpecular = Vector3f.zero();
 
 		for (int i = 0; i < lights.size(); i++)
 		{
-			Vector3f[] components = sampleLight(renderer, lightSamples, lights.get(i), point, normal, eye);
+			Vector3f[] components = sampleLight(renderer, lights.get(i), point, normal, eye);
 			totalDiffuse.add(components[0]);
 			totalSpecular.add(components[1]);
 		}
@@ -42,14 +42,14 @@ public class PhongMaterial implements Material
 							Math.min(255f, m_color.getZ() * totalDiffuse.getZ() + ambient.getZ()));
 	}
 
-	private Vector3f[] sampleLight(Renderer renderer, int lightSamples, Light light, Vector3f point, Vector3f normal, Vector3f eye)
+	private Vector3f[] sampleLight(Renderer renderer, Light light, Vector3f point, Vector3f normal, Vector3f eye)
 	{
 		if (light.canBeSampled())
 		{
 			Vector3f diffuse = Vector3f.zero();
 			Vector3f specular = Vector3f.zero();
 
-			for (int i = 0; i < lightSamples; i++)
+			for (int i = 0; i < renderer.getLightSamples(); i++)
 			{
 				Vector3f sample = light.getPointOn(point);
 				Ray lightRay = new Ray(point, sample.getSub(point));
@@ -61,8 +61,8 @@ public class PhongMaterial implements Material
 				}
 			}
 
-			diffuse.mul(1f / (float) lightSamples);
-			specular.mul(1f/ (float) lightSamples);
+			diffuse.mul(1f / (float) renderer.getLightSamples());
+			specular.mul(1f / (float) renderer.getLightSamples());
 
 			return new Vector3f[]{diffuse, specular};
 		}
