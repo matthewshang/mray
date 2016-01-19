@@ -31,6 +31,16 @@ public class Intersection
 		m_objectIndex = index;
 	}
 
+	public void setDistance(float distance)
+	{
+		m_distance = distance;
+	}
+
+	public void setNormal(Vector3f normal)
+	{
+		m_normal = normal;
+	}
+
 	public boolean isIntersect()
 	{
 		return m_isIntersect;

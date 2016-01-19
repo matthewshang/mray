@@ -23,14 +23,29 @@ public class Vector3f
 		return new Vector3f(m_x, m_y, m_z);
 	}
 
+	public void setX(float x)
+	{
+		m_x = x;
+	}
+
 	public float getX()
 	{
 		return m_x;
 	}
 
+	public void setY(float y)
+	{
+		m_y = y;
+	}
+
 	public float getY()
 	{
 		return m_y;
+	}
+
+	public void setZ(float z)
+	{
+		m_z = z;
 	}
 
 	public float getZ()

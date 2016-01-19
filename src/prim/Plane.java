@@ -13,7 +13,7 @@ public class Plane implements EngineObject
 	public Plane(Vector3f point, Vector3f normal, Material material)
 	{
 		m_point = point;
-		m_normal = normal.copy().normalize();
+		m_normal = normal.normalize();
 		m_material = material;
 	}
 

@@ -15,21 +15,31 @@ import math.*;
 
 public class MRay
 {
-	// private final static int WIDTH = 1920;
-	// private final static int HEIGHT = 1080;
 	private final static int WIDTH = 1920;
 	private final static int HEIGHT = 1080;
-	private final static int CHUNK_WIDTH = 96;
-	private final static int CHUNK_HEIGHT = 72;
-	private final static int SAMPLES_PER_PIXEL = 64;
-	private final static int SAMPLES_PER_LIGHT = 2;
-	private final static int SAMPLES_PER_REFLECTION = 8;
+	// private final static int WIDTH = 960;
+	// private final static int HEIGHT = 720;
+	// private final static int WIDTH = 480;
+	// private final static int HEIGHT = 360;
+
+	private final static int CHUNK_WIDTH = 80;
+	private final static int CHUNK_HEIGHT = 90;
+	private final static int SAMPLES_PER_PIXEL = 32;
+	private final static int SAMPLES_PER_LIGHT = 1;
+	private final static int SAMPLES_PER_REFLECTION = 1;
 	private final static int MAX_DEPTH = 5;
 
 	private Display m_display;
 
+	public static void main(String[] args)
+	{
+		MRay mray = new MRay();
+		mray.start();
+	}
+
 	public MRay()
 	{
+
 		m_display = new Display(WIDTH, HEIGHT);
 	}
 
@@ -37,7 +47,8 @@ public class MRay
 	{		
 		// Scene scene = TestScene.glossyBalls();
 		// Scene scene = TestScene.ballAndPlane();
-		Scene scene = TestScene.coloredBalls();
+		// Scene scene = TestScene.coloredBalls();
+		Scene scene = TestScene.cube();
 
 		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES_PER_PIXEL, SAMPLES_PER_LIGHT, SAMPLES_PER_REFLECTION, MAX_DEPTH, scene);
 
@@ -54,17 +65,18 @@ public class MRay
 			saveImage();
 		}
 
-		while (true)
-		{
-			try
-			{
-				Thread.sleep(32);
-			}
-			catch (InterruptedException ex)
-			{
-				ex.printStackTrace();
-			}
-		}
+
+		// while (true)
+		// {
+		// 	try
+		// 	{
+		// 		Thread.sleep(32);
+		// 	}
+		// 	catch (InterruptedException ex)
+		// 	{
+		// 		ex.printStackTrace();
+		// 	}
+		// }
 	}
 
 	private void traceImage(Display display, Renderer renderer, int numberOfThreads)
@@ -144,12 +156,5 @@ public class MRay
 		Date date = new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss");
 		return dateFormat.format(date);
-	}
-
-	public static void main(String[] args)
-	{
-		// System.out.println(Sampler.sampleSphere(new Vector3f(0f, 1f, 0f).normalize(), 1f, 0f, 0f).toString());
-		MRay mray = new MRay();
-		mray.start();
 	}
 }

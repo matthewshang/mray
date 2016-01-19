@@ -93,7 +93,7 @@ public class Renderer
 		for (int i = 0; i < m_pixelSamples; i++)
 		{
 			Vector3f sample = new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1f);
-			color.add(traceRay(new Ray(Vector3f.zero(), sample), 0));
+			color.add(traceRay(new Ray(new Vector3f(0f, 0f, 0f), sample), 0));
 		}
 
 		return color.mul(1f / (float) m_pixelSamples); 
