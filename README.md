@@ -5,10 +5,17 @@ This is my first raytracer. I'm just writing this in my free time, when I'm not 
 
 Features:
 -Geometric primitives (spheres, planes, cylinders)
+
 -OBJ models
+
 -Diffuse and reflective materials
+
 -indirect and direct lighting
+
 -area and point light sources
+
 -multithreading
+
 -saving to .png's
+
 -hardcoded scenes
