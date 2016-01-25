@@ -10,7 +10,9 @@ public class Scene
 {
 	private ArrayList<EngineObject> m_objects;
 	private ArrayList<Light> m_lights;
-	private static Vector3f m_skyColor = new Vector3f(153f, 204f, 255f);
+	private static Vector3f m_skyColor = new Vector3f(204f, 229f, 255f);
+	// private static Vector3f m_skyColor = new Vector3f(255f, 255f, 255f);
+
 
 	public Scene()
 	{

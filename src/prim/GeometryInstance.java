@@ -20,13 +20,13 @@ public class GeometryInstance implements EngineObject
 	private Matrix4f m_inverseTranspose;
 	private AABB m_boundingBox;
 
-	public GeometryInstance(Vector3f position, float scale, Quaternion rotation, VerticedGeometry geometry, Material material)
+	public GeometryInstance(Vector3f position, Vector3f scale, Quaternion rotation, VerticedGeometry geometry, Material material)
 	{
 		m_geometry = geometry;
 		m_material = material;
 
 		Matrix4f s = new Matrix4f();
-		s.initScale(new Vector3f(scale, scale, scale));
+		s.initScale(scale);
 		Matrix4f rot = new Matrix4f(rotation);
 		m_transform = s.multiply(rot);
 		m_transform.initTranslate(position);

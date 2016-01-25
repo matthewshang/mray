@@ -23,25 +23,15 @@ public class SphereLight implements Light
 		m_geometry = new Sphere(m_position, m_radius, null);
 	}
 
-	public Vector3f getPointOn(Vector3f from)
+	public Vector3f getSample(Vector3f position)
 	{
-		Vector3f normal = m_position.getSub(from).normalize().mul(m_radius);
+		Vector3f normal = m_position.getSub(position).normalize();
 		return Sampler.sampleSphere(normal, m_radius, 0f, (float) Math.PI / 2f).add(m_position);
 	}
 
 	public Intersection intersect(Ray ray)
 	{
 		return m_geometry.intersect(ray);
-	}
-
-	public boolean canBeSampled()
-	{
-		return true;
-	}
-
-	public Vector3f getPosition()
-	{
-		return m_position;
 	}
 
 	public Vector3f getColor()

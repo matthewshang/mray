@@ -104,7 +104,7 @@ public class Vector3f
 							v.getY() * m_x - m_y * v.getX());
 	}
 
-	public Vector3f mulComponents(Vector3f v)
+	public Vector3f mul(Vector3f v)
 	{
 		m_x *= v.getX();
 		m_y *= v.getY();
@@ -112,7 +112,7 @@ public class Vector3f
 		return this;
 	}
 
-	public Vector3f getMulComponents(Vector3f v)
+	public Vector3f getMul(Vector3f v)
 	{
 		return new Vector3f(m_x * v.getX(), m_y * v.getY(), m_z * v.getZ());
 	}
@@ -133,6 +133,14 @@ public class Vector3f
 		m_x /= length;
 		m_y /= length;
 		m_z /= length;
+		return this;
+	}
+
+	public Vector3f pow(float p)
+	{
+		m_x = (float) Math.pow(m_x, p);
+		m_y = (float) Math.pow(m_y, p);
+		m_z = (float) Math.pow(m_z, p);
 		return this;
 	}
 

@@ -6,10 +6,8 @@ import prim.Intersection;
 
 public interface Light
 {
-	public Vector3f getPointOn(Vector3f from);
+	public Vector3f getSample(Vector3f position);
 	public Intersection intersect(Ray ray);
-	public boolean canBeSampled();
-	public Vector3f getPosition();
 	public Vector3f getColor();
 	public float getPower();
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import light.Light;
 import math.Ray;
+import math.Sampler;
 import math.Vector3f;
 import matl.Material;
 import prim.EngineObject;
@@ -15,8 +16,6 @@ public class Renderer
 	private int m_width;
 	private int m_height;
 	private int m_pixelSamples;
-	private int m_lightSamples;
-	private int m_reflectionSamples;
 	private int m_maxDepth;
 	
 	private float m_heightWidthRatio;
@@ -27,13 +26,11 @@ public class Renderer
 
 	private Scene m_scene;
 
-	public Renderer(int width, int height, int pixelSamples, int lightSamples, int reflectionSamples, int maxDepth, Scene scene)
+	public Renderer(int width, int height, int pixelSamples, int maxDepth, Scene scene)
 	{
 		m_width = width;
 		m_height = height;
 		m_pixelSamples = pixelSamples;
-		m_lightSamples = lightSamples;
-		m_reflectionSamples = reflectionSamples;
 		m_maxDepth = maxDepth;
 
 		m_heightWidthRatio = (float) m_height / (float) m_width;
@@ -41,16 +38,6 @@ public class Renderer
 		m_scene = scene;
 		m_imageLeft = -1f * m_halfTanFOV;
 		m_imageTop = m_heightWidthRatio * m_halfTanFOV;
-	}
-
-	public int getLightSamples()
-	{
-		return m_lightSamples;
-	}
-
-	public int getReflectionSamples()
-	{
-		return m_reflectionSamples;
 	}
 
 	public RenderChunk[] getImageChunks(int chunkWidth, int chunkHeight)
@@ -93,7 +80,8 @@ public class Renderer
 		for (int i = 0; i < m_pixelSamples; i++)
 		{
 			Vector3f sample = new Vector3f(randomFloat(left, right), randomFloat(bottom, top), 1f);
-			color.add(traceRay(new Ray(new Vector3f(0f, 0f, 0f), sample), 0));
+			Vector3f rayColor = traceRay(new Ray(new Vector3f(0f, 0f, 0f), sample), 0); 
+			color.add(rayColor);
 		}
 
 		return color.mul(1f / (float) m_pixelSamples); 
@@ -115,27 +103,83 @@ public class Renderer
 		ArrayList<Light> lights = m_scene.getLights();
 
 		Intersection min = getIntersection(ray, objects);
-		// Intersection lightMin = getLightIntersection(ray, lights);
+		Intersection lightMin = getLightIntersection(ray, lights);
 
-		// if (min.getDistance() > lightMin.getDistance())
-		// {
-		// 	if (lightMin.isIntersect())
-		// 	{
-		// 		return lightMin.getNormal();
-		// 	}
-		// }
+		if (min.getDistance() > lightMin.getDistance())
+		{
+			if (lightMin.isIntersect())
+			{
+				// lightMin.normal is set to lightColor
+				return lightMin.getNormal();
+			}
+		}
 
 		if (min.isIntersect())
 		{
-			Vector3f inter = ray.getPoint(min.getDistance());
-			Vector3f color = min.getMaterial().shadePoint(this, ray.getDirection(), depth, inter, Vector3f.zero(), min.getNormal(), lights);
+			Vector3f position = ray.getPoint(min.getDistance());
+			Vector3f normal = min.getNormal();
+			Material material = min.getMaterial();
+			Vector3f surfaceColor = material.getColor().getMul(1f / 255f);
+			Vector3f direct = directLighting(position, normal, lights);
 
-			return color;
+			float random = (float) Math.random();
+			Vector3f sample = material.sample(normal, ray.getDirection(), random);
+			Vector3f indirect = traceRay(new Ray(position, sample), depth + 1).getMul(Math.max(0f, normal.dot(sample)));
+			Vector3f color = surfaceColor.mul(direct.add(indirect.mul(material.getIndirectAmount(random))));
+			if (depth == 0)
+			{
+				color.pow(1f / 2.2f);
+				Vector3f clamped = new Vector3f(Math.min(1f, color.getX()), Math.min(1f, color.getY()), Math.min(1f, color.getZ()));
+				return clamped.mul(255f);
+			}
+			else
+			{
+				return color;
+			}
 		}
 		else
 		{
-			return m_scene.getSkyColor();
+			if (depth == 0)
+			{
+				return m_scene.getSkyColor();
+			}
+			else
+			{
+				return m_scene.getSkyColor().getMul(1f / 255f);
+			}
 		}
+	}
+
+	private Vector3f directLighting(Vector3f position, Vector3f normal, ArrayList<Light> lights)
+	{
+		Vector3f diffuse = Vector3f.zero();
+
+		Vector3f skySample = Sampler.sampleSphere(new Vector3f(0f, 1f, 0f), 1000f, 0f, (float) Math.PI / 2f);
+		Ray skyRay = new Ray(position, skySample.sub(position));
+		if (!isPointShadowed(skyRay))
+		{
+			diffuse.add(m_scene.getSkyColor().getMul((Math.max(0f, skySample.normalize().dot(normal))) / 255f));
+		}
+
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Vector3f sample = lights.get(i).getSample(position);
+			if (!isPointShadowed(new Ray(position, sample.getSub(position))))
+			{
+				diffuse.add(diffuseLighting(lights.get(i), sample, position, normal));
+			}
+		}
+
+		return diffuse;
+	}
+
+	private Vector3f diffuseLighting(Light light, Vector3f lightPosition, Vector3f position, Vector3f normal)
+	{
+		Vector3f posToLight = lightPosition.getSub(position);
+		float distance = posToLight.length();
+		float cos = Math.max(0f, posToLight.dot(normal) / distance);
+		float intensity = Math.min(1f / cos, light.getPower() / (distance * distance));
+		return light.getColor().getMul((cos * intensity) / 255f);
 	}
 
 	private Intersection getIntersection(Ray ray, ArrayList<EngineObject> objects)

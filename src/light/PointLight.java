@@ -17,7 +17,7 @@ public class PointLight implements Light
 		m_power = power;
 	}
 
-	public Vector3f getPointOn(Vector3f from)
+	public Vector3f getSample(Vector3f position)
 	{
 		return m_position;
 	}
@@ -25,16 +25,6 @@ public class PointLight implements Light
 	public Intersection intersect(Ray ray)
 	{
 		return new Intersection();
-	}
-
-	public boolean canBeSampled()
-	{
-		return false;
-	}
-
-	public Vector3f getPosition()
-	{
-		return m_position;
 	}
 
 	public float getPower()
