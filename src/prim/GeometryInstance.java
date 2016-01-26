@@ -11,7 +11,7 @@ import matl.Material;
 
 public class GeometryInstance implements EngineObject
 {
-	private VerticedGeometry m_geometry;
+	private GeometryData m_geometry;
 	private Material m_material;
 
 	private Matrix4f m_transform;
@@ -20,7 +20,7 @@ public class GeometryInstance implements EngineObject
 	private Matrix4f m_inverseTranspose;
 	private AABB m_boundingBox;
 
-	public GeometryInstance(Vector3f position, Vector3f scale, Quaternion rotation, VerticedGeometry geometry, Material material)
+	public GeometryInstance(Vector3f position, Vector3f scale, Quaternion rotation, GeometryData geometry, Material material)
 	{
 		m_geometry = geometry;
 		m_material = material;
@@ -37,10 +37,21 @@ public class GeometryInstance implements EngineObject
 
 		Vector3f min = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 		Vector3f max = new Vector3f(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
-		ArrayList<Vector3f> vertices = m_geometry.getVertices();
-		for (int i = 0; i < vertices.size(); i++)
+
+		Vector3f gmin = m_geometry.getBoundingBox().getMin();
+		Vector3f gmax = m_geometry.getBoundingBox().getMax();
+
+		Vector3f[] boxVertices = new Vector3f[]{gmin,
+												gmax,
+											    new Vector3f(gmin.getX(), gmin.getY(), gmax.getZ()),
+												new Vector3f(gmin.getX(), gmax.getY(), gmin.getZ()),
+												new Vector3f(gmax.getZ(), gmin.getY(), gmin.getZ()),
+												new Vector3f(gmin.getX(), gmax.getY(), gmax.getZ()),
+												new Vector3f(gmax.getX(), gmin.getY(), gmax.getZ()),
+												new Vector3f(gmax.getX(), gmax.getY(), gmin.getZ())};
+		for (int i = 0; i < 8; i++)
 		{
-			Vector3f v = m_transform.apply(vertices.get(i), 1f);
+			Vector3f v = m_transform.apply(boxVertices[i], 1f);
 			if (v.getX() < min.getX())
 			{
 				min.setX(v.getX());
@@ -68,7 +79,6 @@ public class GeometryInstance implements EngineObject
 				max.setZ(v.getZ());
 			}
 		}
-
 		m_boundingBox = new AABB(min, max);
 	}
 
@@ -79,22 +89,20 @@ public class GeometryInstance implements EngineObject
 			return new Intersection();
 		}
 
-		ArrayList<Vector3f> vertices = m_geometry.getVertices();
 		ArrayList<Triangle> triangles = m_geometry.getTriangles();
 		Intersection min = new Intersection(Float.MAX_VALUE, Vector3f.zero(), m_material, -1);
 		boolean intersected = false;
 
 		for (int i = 0; i < triangles.size(); i++)
 		{
-			int[] vertexIndices = triangles.get(i).getVertices();
-			Vector3f v0 = vertices.get(vertexIndices[0]);
-			Vector3f v1 = vertices.get(vertexIndices[1]);
-			Vector3f v2 = vertices.get(vertexIndices[2]);
-			Vector3f normal = v1.getSub(v0).cross(v2.getSub(v0)).normalize();
+			Triangle t = triangles.get(i);
+			Vector3f v0 = t.getV0();
+			Vector3f v10 = t.getV10();
+			Vector3f v20 = t.getV20();
+			Vector3f normal = t.getNormal();
 
 			Ray newRay = new Ray(m_inverseTransform.apply(ray.getOrigin(), 1f), m_transformTranspose.apply(ray.getDirection(), 0f));
-
-			float d = rayTriangleIntersect(newRay, v0, v1, v2, normal);
+			float d = rayTriangleIntersect(newRay, v0, v10, v20, normal);
 			if (d < 0)
 			{
 				continue;
@@ -122,20 +130,18 @@ public class GeometryInstance implements EngineObject
 		}
 	}
 
-	private static float rayTriangleIntersect(Ray ray, Vector3f v0, Vector3f v1, Vector3f v2, Vector3f normal)
+	private static float rayTriangleIntersect(Ray ray, Vector3f v0, Vector3f v10, Vector3f v20, Vector3f normal)
 	{
-		float d = normal.dot(v2.getSub(ray.getOrigin())) / normal.dot(ray.getDirection());
+		float d = normal.dot(v0.getSub(ray.getOrigin())) / normal.dot(ray.getDirection());
 		if (d < 0)
 		{
-			return -1;
+			return -1f;
 		}
 
 		Vector3f point = ray.getPoint(d);
 
-		Vector3f v10 = v1.getSub(v0);
-		Vector3f v20 = v2.getSub(v0);
 		Vector3f p0 = point.getSub(v0);
-		Vector3f ex = v1.getSub(v0).normalize();
+		Vector3f ex = v10.getNormalized();
 		Vector3f ey = ex.cross(normal);
 
 		if (pointInTriangle(0f, 0f, v10.dot(ex), v10.dot(ey), v20.dot(ex), v20.dot(ey), p0.dot(ex), p0.dot(ey)))

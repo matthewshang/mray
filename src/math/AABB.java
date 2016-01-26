@@ -11,6 +11,16 @@ public class AABB
 		m_max = max;
 	}
 
+	public Vector3f getMin()
+	{
+		return m_min;
+	}
+
+	public Vector3f getMax()
+	{
+		return m_max;
+	}
+
 	// https://tavianator.com/fast-branchless-raybounding-box-intersections/
 	public boolean intersect(Ray ray)
 	{

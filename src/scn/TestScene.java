@@ -12,7 +12,7 @@ import prim.GeometryInstance;
 import prim.OBJLoader;
 import prim.Plane;
 import prim.Sphere;
-import prim.VerticedGeometry;
+import prim.GeometryData;
 
 // Temperory - Will put in scene describing text file parsing in later
 public class TestScene
@@ -26,7 +26,7 @@ public class TestScene
 		MirrorMaterial mirror = new MirrorMaterial(new Vector3f(255f, 255f, 255f), 0f, 0.8f);
 
 
-		VerticedGeometry cube = OBJLoader.loadFromFile("./res/cube.obj");
+		GeometryData cube = OBJLoader.loadFromFile("./res/cube.obj");
 
 		Quaternion r1 = new Quaternion();
 		r1.setFromAxisAngle(new Vector3f(0f, 1f, 0f), ((float) Math.PI * -30f) / 180f);
@@ -52,10 +52,10 @@ public class TestScene
 	{
 		Scene scene = new Scene();
 
-		VerticedGeometry ico = OBJLoader.loadFromFile("./res/icosahedron.obj");
-		VerticedGeometry cube = OBJLoader.loadFromFile("./res/cube.obj");
-		VerticedGeometry monkey = OBJLoader.loadFromFile("./res/monkey.obj");
-		VerticedGeometry teapot = OBJLoader.loadFromFile("./res/teapot.obj");
+		GeometryData ico = OBJLoader.loadFromFile("./res/icosahedron.obj");
+		GeometryData cube = OBJLoader.loadFromFile("./res/cube.obj");
+		GeometryData monkey = OBJLoader.loadFromFile("./res/monkey.obj");
+		GeometryData teapot = OBJLoader.loadFromFile("./res/teapot.obj");
 
 		DiffuseMaterial m1 = new DiffuseMaterial(new Vector3f(255f, 255f, 255f));
 		MirrorMaterial m2 = new MirrorMaterial(new Vector3f(255f, 255f, 255f), 0f, 0.8f);
@@ -91,7 +91,7 @@ public class TestScene
 	{
 		Scene scene = new Scene();
 
-		VerticedGeometry teapot = OBJLoader.loadFromFile("./res/cube.obj");
+		GeometryData teapot = OBJLoader.loadFromFile("./res/cube.obj");
 
 		DiffuseMaterial red = new DiffuseMaterial(new Vector3f(255f, 100f, 80f));
 		DiffuseMaterial green = new DiffuseMaterial(new Vector3f(100f, 255f, 80f));

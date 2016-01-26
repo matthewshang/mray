@@ -136,6 +136,12 @@ public class Vector3f
 		return this;
 	}
 
+	public Vector3f getNormalized()
+	{
+		float length = length();
+		return new Vector3f(m_x / length, m_y / length, m_z / length);
+	}
+
 	public Vector3f pow(float p)
 	{
 		m_x = (float) Math.pow(m_x, p);
