@@ -9,7 +9,7 @@ import prim.Intersection;
 
 public class Octree
 {
-	public static int MAX_DEPTH = 4;
+	public static int MAX_DEPTH = 5;
 	public static int MAX_OBJECTS_PER_NODE = 6;
 
 	private OctreeNode m_root;

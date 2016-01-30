@@ -12,6 +12,8 @@ public class OBJLoader
 {
 	public static GeometryData loadFromFile(String filePath)
 	{
+		long start = System.nanoTime();
+
 		GeometryData geometry = new GeometryData();
 
 		FileInputStream fileIn = null;
@@ -32,7 +34,7 @@ public class OBJLoader
 
 				if (line != null && !line.trim().equals("") && !line.substring(0, 1).equals("#"))
 				{
-					switch (line.substring(0, 2).trim())
+					switch (line.substring(0, 1).trim())
 					{
 						case "v":
 							parseVertex(line, geometry, min, max);
@@ -55,7 +57,7 @@ public class OBJLoader
 		catch (IOException ex)
 		{
 			ex.printStackTrace();
-			System.out.println("Could not load model at " + filePath);
+			System.out.println("OBJLoader: Could not load model at " + filePath);
 		}
 		finally
 		{
@@ -77,12 +79,17 @@ public class OBJLoader
 			} 
 		}
 
+		long time = System.nanoTime() - start;
+		float seconds = (float) time / 1000000000f;
+
+		System.out.println("OBJLoader: loaded OBJ at: " + filePath + " Load time: " + seconds + " seconds");
+
 		return geometry;
 	}
 
 	private static void parseVertex(String line, GeometryData geometry, Vector3f min, Vector3f max)
 	{
-		String parsed = line.substring(1);
+		String parsed = line.substring(2);
 		String[] vertexData = parsed.trim().split("\\s");
 		Vector3f vertex = new Vector3f(Float.parseFloat(vertexData[0]),
 									   Float.parseFloat(vertexData[1]),
@@ -93,7 +100,7 @@ public class OBJLoader
 
 	private static void parseTriangle(String line, GeometryData geometry)
 	{
-		String parsed = line.substring(1);
+		String parsed = line.substring(2);
 		String[] triangleData = parsed.trim().split("\\s");
 		geometry.addTriangle(Integer.parseInt(triangleData[0].split("/")[0]) - 1,
 							 Integer.parseInt(triangleData[1].split("/")[0]) - 1,
