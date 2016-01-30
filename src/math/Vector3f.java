@@ -163,6 +163,37 @@ public class Vector3f
 		return v.getMul(r).add(getMul(r * c - (float) Math.sqrt(1f - r * r * (1 - c * c))));
 	}
 
+	public void sortMinAndMax(Vector3f min, Vector3f max)
+	{
+		if (m_x < min.getX())
+		{
+			min.setX(m_x);
+		}
+		if (m_x > max.getX())
+		{
+			max.setX(m_x);
+		}
+
+		if (m_y < min.getY())
+		{
+			min.setY(m_y);
+		}
+		if (m_y > max.getY())
+		{
+			max.setY(m_y);
+		}
+
+		if (m_z < min.getZ())
+		{
+			min.setZ(m_z);
+		}
+		if (m_z > max.getZ())
+		{
+			max.setZ(m_z);
+		}
+
+	}
+
 	public String toString()
 	{
 		return "(" + m_x + ", " + m_y + ", " + m_z + ")";

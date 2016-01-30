@@ -1,5 +1,6 @@
 package prim;
 
+import math.AABB;
 import math.Ray;
 import math.Vector3f;
 import matl.Material;
@@ -9,12 +10,20 @@ public class Sphere implements EngineObject
 	private Vector3f m_center;
 	private float m_radius;
 	private Material m_material;
+	private AABB m_boundingBox;
 
 	public Sphere(Vector3f center, float radius, Material material)
 	{
 		m_center = center;
 		m_radius = radius;
 		m_material = material;
+		m_boundingBox = new AABB(m_center.getSub(new Vector3f(m_radius, m_radius, m_radius)), 
+								 m_center.getAdd(new Vector3f(m_radius, m_radius, m_radius)));
+	}
+
+	public AABB getBounds()
+	{
+		return m_boundingBox;
 	}
 
 	public Intersection intersect(Ray ray)

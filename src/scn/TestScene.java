@@ -36,14 +36,18 @@ public class TestScene
 		r2.setFromAxisAngle(new Vector3f(0f, 1f, 0f), ((float) Math.PI * 30f) / 180f);
 		scene.addObject(new GeometryInstance(new Vector3f(2f, -3f, 8f), new Vector3f(2f, 2f, 2f), r2, cube, white));
 
+		scene.addObject(new Sphere(new Vector3f(-0.5f, -3, 9f), 1f, mirror));
+
 		scene.addObject(new GeometryInstance(new Vector3f(0f, -9f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, white));
-		scene.addObject(new GeometryInstance(new Vector3f(0f, 11f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, white));
+		// scene.addObject(new GeometryInstance(new Vector3f(0f, 11f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, white));
+		scene.addObject(new GeometryInstance(new Vector3f(0f, 15f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, white));
+
 		scene.addObject(new GeometryInstance(new Vector3f(0f, 1f, 20f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, white));
 
 		scene.addObject(new GeometryInstance(new Vector3f(10f, 1f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, red));
 		scene.addObject(new GeometryInstance(new Vector3f(-10f, 1f, 10f), new Vector3f(10f, 10f, 10f), new Quaternion(), cube, blue));
 
-		scene.addLight(new SphereLight(new Vector3f(0f, 6f, 10f), 75f, 1f, new Vector3f(255f, 255f, 255f)));
+		scene.addLight(new SphereLight(new Vector3f(0f, 5f, 10f), 5f, 0.5f, new Vector3f(255f, 255f, 255f)));
 
 		return scene;
 	}
@@ -80,40 +84,45 @@ public class TestScene
 
 		scene.addObject(new Plane(new Vector3f(0f, -5f, 0f), new Vector3f(0f, 1f, 0f), m1));
 
-		scene.addLight(new SphereLight(new Vector3f(-7f, 7f, 0f), 175f, 4f, new Vector3f(255f, 153f, 51f)));
-		scene.addLight(new SphereLight(new Vector3f(7f, 7f, 0f), 175f, 4f, new Vector3f(51f, 153f, 255f)));
+		scene.addLight(new SphereLight(new Vector3f(-20f, 20f, 0f), 500f, 2f, new Vector3f(182f, 126f, 91f)));
+
+
+		// scene.addLight(new SphereLight(new Vector3f(-7f, 7f, 0f), 175f, 4f, new Vector3f(255f, 153f, 51f)));
+		// scene.addLight(new SphereLight(new Vector3f(7f, 7f, 0f), 175f, 4f, new Vector3f(51f, 153f, 255f)));
 
 		return scene;
 	}
 
 
-	public static Scene diffuseBallAndPlane()
+	public static Scene bunny()
 	{
 		Scene scene = new Scene();
 
-		GeometryData teapot = OBJLoader.loadFromFile("./res/cube.obj");
+		GeometryData bunny = OBJLoader.loadFromFile("./res/bunny.obj");
+		GeometryData cube = OBJLoader.loadFromFile("./res/cube.obj");
 
-		DiffuseMaterial red = new DiffuseMaterial(new Vector3f(255f, 100f, 80f));
-		DiffuseMaterial green = new DiffuseMaterial(new Vector3f(100f, 255f, 80f));
-		DiffuseMaterial blue = new DiffuseMaterial(new Vector3f(80f, 100f, 255f));
-		MirrorMaterial mirror = new MirrorMaterial(new Vector3f(255f, 100f, 80f), 0f, 0.8f);
-
+		MirrorMaterial mirror = new MirrorMaterial(new Vector3f(254f, 254f, 254f), 0f, 1f);
+		MirrorMaterial mirror2 = new MirrorMaterial(new Vector3f(254f, 254f, 254f), 0.05f, 1f);
 		DiffuseMaterial m2 = new DiffuseMaterial(new Vector3f(254f, 254f, 254f));
+		DiffuseMaterial orange = new DiffuseMaterial(new Vector3f(254f, 128f, 0f));
+		DiffuseMaterial purple = new DiffuseMaterial(new Vector3f(178f, 102f, 254f));
 
 
 		scene.addObject(new Plane(new Vector3f(0f, -2f, 0f), new Vector3f(0f, 1f, 0f), m2));
-		// scene.addObject(new Sphere(new Vector3f(0f, 0f, 10f), 2f, mirror));
-		scene.addObject(new Sphere(new Vector3f(3f, -1f, 7f), 1f, green));
-		scene.addObject(new Sphere(new Vector3f(-3f, -1f, 7f), 1f, blue));
+		scene.addObject(new Sphere(new Vector3f(-3f, -0.5f, 12f), 1.5f, mirror));
+		scene.addObject(new Sphere(new Vector3f(-3.5f, -1.25f, 9f), 0.75f, orange));
+		scene.addObject(new Sphere(new Vector3f(4f, -1.5f, 9.5f), 0.5f, purple));
 
-		Quaternion q = new Quaternion();
-		q.setFromAxisAngle(new Vector3f(0f, 1f, 0f), (float) Math.PI * 60f / 180f);
 
-		scene.addObject(new GeometryInstance(new Vector3f(0f, -0.5f, 10f), new Vector3f(3f, 3f, 3f), q, teapot, mirror));
+		Quaternion q1 = new Quaternion();
+		q1.setFromAxisAngle(new Vector3f(0f, 1f, 0f), (float) Math.PI * -180f / 180f);
+		scene.addObject(new GeometryInstance(new Vector3f(0f, -2.9f, 10f), new Vector3f(30f, 30f, 30f), q1, bunny, m2));
 
+		Quaternion q2 = new Quaternion();
+		q2.setFromAxisAngle(new Vector3f(0f, 1f, 0f), (float) Math.PI * -55f / 180f);
+		scene.addObject(new GeometryInstance(new Vector3f(5.5f, 0f, 14f), new Vector3f(4f, 4f, 4f), q2, cube, mirror2));
 
 		scene.addLight(new SphereLight(new Vector3f(-20f, 20f, 0f), 500f, 2f, new Vector3f(182f, 126f, 91f)));
-		// scene.addLight(new SphereLight(new Vector3f(7f, 3f, 0f), 300f, 4f, new Vector3f(51f, 153f, 255f)));
 
 		return scene;
 	}

@@ -11,6 +11,18 @@ public class AABB
 		m_max = max;
 	}
 
+	public Vector3f[] getVertices()
+	{
+		return new Vector3f[]{             m_max,
+							  new Vector3f(m_max.getX(), m_min.getY(), m_max.getZ()),
+							  new Vector3f(m_min.getX(), m_min.getY(), m_max.getZ()),
+							  new Vector3f(m_min.getX(), m_max.getY(), m_max.getZ()),
+							  new Vector3f(m_max.getX(), m_max.getY(), m_min.getZ()),
+							  new Vector3f(m_max.getX(), m_min.getY(), m_min.getZ()),
+							               m_min,
+							  new Vector3f(m_min.getX(), m_max.getY(), m_min.getZ())};
+	}
+
 	public Vector3f getMin()
 	{
 		return m_min;
@@ -22,7 +34,7 @@ public class AABB
 	}
 
 	// https://tavianator.com/fast-branchless-raybounding-box-intersections/
-	public boolean intersect(Ray ray)
+	public float intersect(Ray ray)
 	{
 		Vector3f origin = ray.getOrigin();
 		Vector3f direction = ray.getDirection();
@@ -56,6 +68,27 @@ public class AABB
 			tmax = Math.min(tmax, Math.max(tz1, tz2));
 		}
 
-		return tmax >= tmin && tmax >= 0f;
+		if (tmax >= tmin && tmax >= 0)
+		{
+			return tmin;
+		}
+		else
+		{
+			return 0f;
+		}
+	}
+
+	public boolean intersect(AABB box)
+	{
+		Vector3f bmin = box.getMin();
+		Vector3f bmax = box.getMax();
+		return !(m_min.getX() > bmax.getX() || m_max.getX() < bmin.getX() ||
+				 m_min.getY() > bmax.getY() || m_max.getY() < bmin.getY() ||
+				 m_min.getZ() > bmax.getZ() || m_max.getZ() < bmin.getZ());
+	}
+
+	public String toString()
+	{
+		return "min:" + m_min.toString() + " max:" + m_max.toString();
 	}
 }

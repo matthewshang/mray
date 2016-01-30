@@ -1,5 +1,6 @@
 package prim;
 
+import math.AABB;
 import math.Ray;
 import math.Vector3f;
 import matl.Material;
@@ -15,6 +16,11 @@ public class Plane implements EngineObject
 		m_point = point;
 		m_normal = normal.normalize();
 		m_material = material;
+	}
+
+	public AABB getBounds()
+	{
+		return new AABB(Vector3f.zero(), Vector3f.zero());
 	}
 
 	public Intersection intersect(Ray ray)

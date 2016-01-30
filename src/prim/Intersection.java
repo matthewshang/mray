@@ -41,6 +41,11 @@ public class Intersection
 		m_normal = normal;
 	}
 
+	public void setMaterial(Material material)
+	{
+		m_material = material;
+	}
+
 	public boolean isIntersect()
 	{
 		return m_isIntersect;

@@ -1,5 +1,6 @@
 package prim;
 
+import math.AABB;
 import math.Ray;
 import math.Vector3f;
 import matl.Material;
@@ -17,6 +18,11 @@ public class Cylinder implements EngineObject
 		m_axis = axis.normalize();
 		m_radius = radius;
 		m_material = material;
+	}
+
+	public AABB getBounds()
+	{
+		return new AABB(Vector3f.zero(), Vector3f.zero());
 	}
 
 	public Intersection intersect(Ray ray)

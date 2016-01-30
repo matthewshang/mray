@@ -11,7 +11,6 @@ import core.RenderChunk;
 import core.Renderer;
 import scn.Scene;
 import scn.TestScene;
-import math.*;
 
 public class MRay
 {
@@ -24,8 +23,8 @@ public class MRay
 
 	private final static int CHUNK_WIDTH = 80;
 	private final static int CHUNK_HEIGHT = 80;
-	private final static int SAMPLES = 128;
-	private final static int MAX_DEPTH = 3;
+	private final static int SAMPLES = 400;
+	private final static int MAX_DEPTH = 4;
 
 	private Display m_display;
 
@@ -43,10 +42,7 @@ public class MRay
 
 	public void start()
 	{		
-		// Scene scene = TestScene.glossyBalls();
-		// Scene scene = TestScene.ballAndPlane();
-		Scene scene = TestScene.diffuseBallAndPlane();
-		// Scene scene = TestScene.coloredBalls();
+		Scene scene = TestScene.bunny();
 		// Scene scene = TestScene.cube();
 		// Scene scene = TestScene.box();
 

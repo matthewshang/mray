@@ -24,7 +24,7 @@ public class OBJLoader
 			String line;
 
 			Vector3f min = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-			Vector3f max = new Vector3f(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+			Vector3f max = new Vector3f(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
 
 			do
 			{
@@ -50,6 +50,7 @@ public class OBJLoader
 			while (line != null);
 
 			geometry.setBoundingBox(new AABB(min, max));
+			geometry.buildTree();
 		}
 		catch (IOException ex)
 		{
@@ -83,38 +84,11 @@ public class OBJLoader
 	{
 		String parsed = line.substring(1);
 		String[] vertexData = parsed.trim().split("\\s");
-		float x = Float.parseFloat(vertexData[0]);
-		float y = Float.parseFloat(vertexData[1]);
-		float z = Float.parseFloat(vertexData[2]);
-
-		if (x < min.getX())
-		{
-			min.setX(x);
-		}
-		else if (x > max.getX())
-		{
-			max.setX(x);
-		}
-
-		if (y < min.getY())
-		{
-			min.setY(y);
-		}
-		else if (y > max.getY())
-		{
-			max.setY(y);
-		}
-
-		if (z < min.getZ())
-		{
-			min.setZ(z);
-		}
-		else if (z > max.getZ())
-		{
-			max.setZ(z);
-		}
-
-		geometry.addVertex(new Vector3f(x, y, z));
+		Vector3f vertex = new Vector3f(Float.parseFloat(vertexData[0]),
+									   Float.parseFloat(vertexData[1]),
+									   Float.parseFloat(vertexData[2]));
+		vertex.sortMinAndMax(min, max);
+		geometry.addVertex(vertex);
 	}
 
 	private static void parseTriangle(String line, GeometryData geometry)
