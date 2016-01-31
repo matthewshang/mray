@@ -1,16 +1,13 @@
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.io.File;
-import javax.imageio.ImageIO;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
-import core.Display;
 import core.CubbyHole;
 import core.MRayWorker;
 import core.RenderChunk;
 import core.Renderer;
 import scn.Scene;
 import scn.TestScene;
+import util.ImageSaver;
 
 public class MRay
 {
@@ -21,23 +18,15 @@ public class MRay
 	// private final static int WIDTH = 480;
 	// private final static int HEIGHT = 270;
 
-	private final static int CHUNK_WIDTH = 80;
-	private final static int CHUNK_HEIGHT = 80;
-	private final static int SAMPLES = 400;
-	private final static int MAX_DEPTH = 4;
-
-	private Display m_display;
+	private final static int CHUNK_WIDTH = 60;
+	private final static int CHUNK_HEIGHT = 60;
+	private final static int SAMPLES = 5;
+	private final static int MAX_DEPTH = 10;
 
 	public static void main(String[] args)
 	{
 		MRay mray = new MRay();
 		mray.start();
-	}
-
-	public MRay()
-	{
-
-		m_display = new Display(WIDTH, HEIGHT);
 	}
 
 	public void start()
@@ -46,23 +35,18 @@ public class MRay
 		// Scene scene = TestScene.cube();
 		// Scene scene = TestScene.box();
 
-		Renderer renderer = new Renderer(m_display.getWidth(), m_display.getHeight(), SAMPLES, MAX_DEPTH, scene);
+		Renderer renderer = new Renderer(WIDTH, HEIGHT, SAMPLES, MAX_DEPTH, scene);
 
 		long start = System.nanoTime();
-		traceImage(m_display, renderer, getCores() - 1);
+		BufferedImage image = traceImage(renderer, getCores() - 1);
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 		System.out.println("Render time: " + seconds + " seconds");	
 
-		m_display.drawBuffer();	
-
-		if (true)
-		{
-			saveImage();
-		}
+		ImageSaver.saveAsPNG(image, SAMPLES + "spp " + MAX_DEPTH + "depth " + seconds + "secs", "./out/");
 	}
 
-	private void traceImage(Display display, Renderer renderer, int numberOfThreads)
+	private BufferedImage traceImage(Renderer renderer, int numberOfThreads)
 	{
 		CubbyHole chunker = new CubbyHole();
 		MRayWorker[] workers = new MRayWorker[numberOfThreads];
@@ -78,14 +62,22 @@ public class MRay
 			workers[i].start();
 		}
 
+		BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		int[] buffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
 		RenderChunk[] chunks = renderer.getImageChunks(CHUNK_WIDTH, CHUNK_HEIGHT);
-	    int[] buffer = display.getPixels();
 
 		int currentChunk = 0;
+		int lastProgress = -1;
 		while (currentChunk < chunks.length)
 		{
 			chunker.put(chunks[currentChunk++]);
-			display.setTitle(currentChunk + "/" + chunks.length);
+			int progress = (int) (((float) currentChunk / (float) chunks.length) * 100f);
+			if (progress % 10 == 0 && lastProgress != progress)
+			{
+				System.out.println("MRay: render " + progress + "% complete");
+				lastProgress = progress;
+			}
 		}
 
 		// To fix weird bug of last chunk not having time to finish
@@ -113,31 +105,10 @@ public class MRay
 			chunks[i].copyToBuffer(buffer, WIDTH);
 		}
 
-		display.setTitle("mray");
-	}
-
-	private void saveImage()
-	{
-		File outputFile = new File("./out/" + getTimestamp() + ".png");
-		try
-		{
-			ImageIO.write(m_display.getBufferedImage(), "png", outputFile);
-		}
-		catch (IOException ex)
-		{
-			ex.printStackTrace();
-		}
+		return image;
 	}
 
 	private int getCores()
 	{
 		return Runtime.getRuntime().availableProcessors();
-	}
-
-	private String getTimestamp()
-	{
-		Date date = new Date();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss");
-		return dateFormat.format(date);
-	}
-}
+	}}
