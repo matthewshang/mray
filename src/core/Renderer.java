@@ -119,10 +119,18 @@ public class Renderer
 			Vector3f position = ray.getPoint(min.getDistance());
 			Vector3f normal = min.getNormal();
 			Material material = min.getMaterial();
+			
 			Vector3f surfaceColor = material.getColor().getMul(1f / 255f);
-			Vector3f direct = directLighting(position, normal, lights);
-
 			float random = (float) Math.random();
+			Vector3f direct; 
+			if (material.receivesDirect(random))
+			{
+				direct = directLighting(position, normal, lights);
+			}
+			else 
+			{
+				direct = Vector3f.zero();
+			}
 			Vector3f sample = material.sample(normal, ray.getDirection(), random);
 			Vector3f indirect = traceRay(new Ray(position, sample), depth + 1).getMul(Math.max(0f, normal.dot(sample)));
 			Vector3f color = surfaceColor.mul(direct.add(indirect.mul(material.getIndirectAmount(random))));

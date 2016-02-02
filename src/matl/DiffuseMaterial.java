@@ -15,6 +15,11 @@ public class DiffuseMaterial implements Material
 		m_color = color;
 	}
 
+	public boolean receivesDirect(float random)
+	{
+		return true;
+	}
+
 	public Vector3f sample(Vector3f normal, Vector3f fromDirection, float random)
 	{
 		return Sampler.sampleSphere(normal, 1f, 0f, HALF_PI);

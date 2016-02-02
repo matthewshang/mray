@@ -19,6 +19,18 @@ public class MirrorMaterial implements Material
 		m_reflectedAmount = reflectedAmount;
 	}
 
+	public boolean receivesDirect(float random)
+	{
+		if (random < m_reflectedAmount)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
 	public Vector3f getColor()
 	{
 		return m_color;

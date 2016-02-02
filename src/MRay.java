@@ -11,17 +11,17 @@ import util.ImageSaver;
 
 public class MRay
 {
-	// private final static int WIDTH = 1920;
-	// private final static int HEIGHT = 1080;
-	private final static int WIDTH = 960;
-	private final static int HEIGHT = 960;
+	private final static int WIDTH = 1920;
+	private final static int HEIGHT = 1080;
+	// private final static int WIDTH = 960;
+	// private final static int HEIGHT = 960;
 	// private final static int WIDTH = 480;
 	// private final static int HEIGHT = 270;
 
 	private final static int CHUNK_WIDTH = 60;
 	private final static int CHUNK_HEIGHT = 60;
-	private final static int SAMPLES = 5;
-	private final static int MAX_DEPTH = 10;
+	private final static int SAMPLES = 10;
+	private final static int MAX_DEPTH = 8;
 
 	public static void main(String[] args)
 	{
@@ -31,7 +31,9 @@ public class MRay
 
 	public void start()
 	{		
-		Scene scene = TestScene.bunny();
+		// Scene scene = TestScene.head();
+		Scene scene = TestScene.dragon();
+		// Scene scene = TestScene.bunny();
 		// Scene scene = TestScene.cube();
 		// Scene scene = TestScene.box();
 

@@ -19,6 +19,9 @@ public class OBJLoader
 		FileInputStream fileIn = null;
 		BufferedReader reader = null;
 
+		int triangles = 0;
+		int vertices = 0;
+
 		try
 		{
 			fileIn = new FileInputStream(filePath);
@@ -32,16 +35,18 @@ public class OBJLoader
 			{
 				line = reader.readLine();
 
-				if (line != null && !line.trim().equals("") && !line.substring(0, 1).equals("#"))
+				if (line != null && !line.trim().equals("") && !line.substring(0, 1).equals("#") && !line.substring(0, 2).equals("vt"))
 				{
 					switch (line.substring(0, 1).trim())
 					{
 						case "v":
 							parseVertex(line, geometry, min, max);
+							vertices++;
 							break;
 
 						case "f":
 							parseTriangle(line, geometry);
+							triangles++;
 							break;
 
 						default:
@@ -82,7 +87,7 @@ public class OBJLoader
 		long time = System.nanoTime() - start;
 		float seconds = (float) time / 1000000000f;
 
-		System.out.println("OBJLoader: loaded OBJ at: " + filePath + " Load time: " + seconds + " seconds");
+		System.out.println("OBJLoader: loaded OBJ with " + triangles + " triangles and " + vertices + " vertices at: " + filePath + " Load time: " + seconds + " seconds");
 
 		return geometry;
 	}
@@ -102,8 +107,19 @@ public class OBJLoader
 	{
 		String parsed = line.substring(2);
 		String[] triangleData = parsed.trim().split("\\s");
-		geometry.addTriangle(Integer.parseInt(triangleData[0].split("/")[0]) - 1,
-							 Integer.parseInt(triangleData[1].split("/")[0]) - 1,
-							 Integer.parseInt(triangleData[2].split("/")[0]) - 1);
+		int offset = 1;
+		if (triangleData[0].split("/")[0].substring(0, 1).equals("-"))
+		{
+			offset = -1;
+		}
+		geometry.addTriangle(Integer.parseInt(triangleData[0].split("/")[0]) * offset - 1,
+							 Integer.parseInt(triangleData[1].split("/")[0]) * offset - 1,
+							 Integer.parseInt(triangleData[2].split("/")[0]) * offset - 1);
+		if (triangleData.length == 4)
+		{
+			geometry.addTriangle(Integer.parseInt(triangleData[0].split("/")[0]) * offset - 1,
+								 Integer.parseInt(triangleData[2].split("/")[0]) * offset - 1,
+								 Integer.parseInt(triangleData[3].split("/")[0]) * offset - 1);
+		}
 	}
 }
